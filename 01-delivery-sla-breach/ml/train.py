@@ -209,7 +209,7 @@ def main():
 
     # 3. CatBoost (symmetric oblivious trees, native NaN handling)
     cb_model = CatBoostClassifier(
-        iterations=300, depth=6, learning_rate=0.08, random_seed=42, verbose=0
+        iterations=300, depth=6, learning_rate=0.08, random_seed=42, verbose=0, allow_writing_files=False,
     )
     cb_model.fit(X_train, y_train)
 

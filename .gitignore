@@ -6,6 +6,7 @@ go.work.sum
 .venv/
 __pycache__/
 .ipynb_checkpoints/
+catboost_info/
 
 # Raw downloaded datasets (keep repo lightweight)
 **/data/
