@@ -1,0 +1,11 @@
+{
+  "schema_version": "v1.0.0",
+  "threshold": 0.12,
+  "features": [
+    { "name": "distance_km", "type": "float32", "nullable": false },
+    { "name": "weight_grams", "type": "float32", "nullable": true },
+    { "name": "seller_late_rate", "type": "float32", "nullable": true },
+    { "name": "is_weekend", "type": "float32", "nullable": false },
+    { "name": "freight_ratio", "type": "float32", "nullable": false }
+  ]
+}
