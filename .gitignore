@@ -1,0 +1,13 @@
+# Go local workspace (keep CI isolated per module)
+go.work
+go.work.sum
+
+# Python environments & caches
+.venv/
+__pycache__/
+.ipynb_checkpoints/
+
+# Raw downloaded datasets (keep repo lightweight)
+**/data/
+*.csv
+*.parquet
