@@ -31,6 +31,13 @@
         "04-multimodal-ai/ml",
         "04-multimodal-ai/ml/.venv/lib/python3.12/site-packages"
       ]
+    },
+    {
+      "root": "05-llm-gateway/ml",
+      "extraPaths": [
+        "05-llm-gateway/ml",
+        "05-llm-gateway/ml/.venv/lib/python3.12/site-packages"
+      ]
     }
   ]
 }

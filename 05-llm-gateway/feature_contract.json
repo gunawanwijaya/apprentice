@@ -1,0 +1,41 @@
+{
+  "schema_version": "v1.0.0",
+  "gateway": {
+    "primary_model": "gpt-4o-mini",
+    "fallback_model": "gemini-2.5-flash",
+    "semantic_similarity_threshold": 0.75,
+    "max_output_tokens_cap": 512,
+    "default_rpm": 120,
+    "default_daily_budget_usd": 5.25,
+    "retryable_status_codes": [429, 500, 502, 503, 504],
+    "max_schema_repair_retries": 1
+  },
+  "models": [
+    {
+      "name": "gpt-4o-mini",
+      "provider": "openai",
+      "input_usd_per_1m": 0.15,
+      "output_usd_per_1m": 0.6,
+      "prefill_tps": 12000,
+      "decode_tps": 110
+    },
+    {
+      "name": "gemini-2.5-flash",
+      "provider": "gemini",
+      "input_usd_per_1m": 0.1,
+      "output_usd_per_1m": 0.4,
+      "prefill_tps": 16000,
+      "decode_tps": 160
+    }
+  ],
+  "guardrails": {
+    "block_semantic_cache_on_pii_or_id": true,
+    "entity_patterns": [
+      "order_or_ticket_id",
+      "email_address",
+      "phone_number",
+      "nik_or_card_digits",
+      "currency_amount"
+    ]
+  }
+}

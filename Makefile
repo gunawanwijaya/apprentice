@@ -13,7 +13,7 @@ gen:
 	cd $(MOD)/go && GOWORK=off go generate ./...
 
 test:
-	cd $(MOD)/go && ONNXRUNTIME_LIB=$(ORT_LIB) GOWORK=off go test -count=1 -v ./...
+	cd $(MOD)/go && ONNXRUNTIME_LIB="$(if $(ORT_LIB),$(realpath $(ORT_LIB)),)" GOWORK=off go test -count=1 -v ./...
 
 serve:
-	cd $(MOD)/go && ONNXRUNTIME_LIB=$(ORT_LIB) GOWORK=off go run ./cmd/server | jq -R 'fromjson? // .'
+	cd $(MOD)/go && ONNXRUNTIME_LIB="$(if $(ORT_LIB),$(realpath $(ORT_LIB)),)" GOWORK=off go run ./cmd/server  | jq -R 'fromjson? // .'
