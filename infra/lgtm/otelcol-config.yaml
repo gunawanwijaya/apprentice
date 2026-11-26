@@ -12,10 +12,6 @@ receivers:
   prometheus/collector:
     config:
       scrape_configs:
-        - job_name: "opentelemetry-collector"
-          scrape_interval: 1s
-          static_configs:
-            - targets: ["127.0.0.1:8888"]
         - job_name: "lgtm-prometheus"
           scrape_interval: 15s
           static_configs:
