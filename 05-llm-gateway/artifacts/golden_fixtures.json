@@ -1,0 +1,46 @@
+{
+  "schema_version": "v1.0.0",
+  "schema_hash": "6b0739238375",
+  "guard_cases": [
+    {
+      "prompt": "How do I reset my security PIN in the app?",
+      "entity_sensitive": false
+    },
+    {
+      "prompt": "What are the business hours for customer support?",
+      "entity_sensitive": false
+    },
+    {
+      "prompt": "Why is two-factor authentication required on login?",
+      "entity_sensitive": false
+    },
+    {
+      "prompt": "Can I change my delivery address before shipment?",
+      "entity_sensitive": false
+    },
+    {
+      "prompt": "Approve refund request for Order #10042 immediately",
+      "entity_sensitive": true
+    },
+    {
+      "prompt": "Check shipment tracking status for AWB-883920",
+      "entity_sensitive": true
+    },
+    {
+      "prompt": "Send invoice copy to budi.santoso@example.co.id",
+      "entity_sensitive": true
+    },
+    {
+      "prompt": "Update WhatsApp alert number to +62 812-3456-7890",
+      "entity_sensitive": true
+    },
+    {
+      "prompt": "Verify borrower KTP 3171051209900004 before disbursement",
+      "entity_sensitive": true
+    },
+    {
+      "prompt": "Disburse Rp 2.500.000 to merchant settlement wallet",
+      "entity_sensitive": true
+    }
+  ]
+}
