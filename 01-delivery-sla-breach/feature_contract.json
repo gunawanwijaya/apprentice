@@ -1,9 +1,12 @@
 {
-  "schema_version": "v1.1.0",
+  "schema_version": "v1.2.0",
   "threshold": 0.12,
+  "eta_coverage_target": 0.80,
   "models": {
     "classifier": "model.onnx",
-    "regressor": "eta_model.onnx"
+    "eta_p10": "eta_p10.onnx",
+    "eta_p50": "eta_p50.onnx",
+    "eta_p90": "eta_p90.onnx"
   },
   "features": [
     { "name": "distance_km", "type": "float32", "nullable": false },

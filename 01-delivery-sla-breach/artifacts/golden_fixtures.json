@@ -1,5 +1,5 @@
 {
-  "schema_version": "v1.1.0",
+  "schema_version": "v1.2.0",
   "schema_hash": "fe66b8873d6c",
   "threshold": 0.12,
   "cases": [
@@ -13,7 +13,9 @@
       },
       "expected_prob": 0.022483348846435547,
       "expected_label": 0,
-      "expected_eta_days": 10.25191
+      "expected_eta_min_days": 5.02876,
+      "expected_eta_p50_days": 9.20739,
+      "expected_eta_max_days": 17.7053
     },
     {
       "input": {
@@ -25,7 +27,9 @@
       },
       "expected_prob": 0.0377124547958374,
       "expected_label": 0,
-      "expected_eta_days": 14.16189
+      "expected_eta_min_days": 7.85687,
+      "expected_eta_p50_days": 12.36805,
+      "expected_eta_max_days": 22.51557
     },
     {
       "input": {
@@ -37,7 +41,9 @@
       },
       "expected_prob": 0.07518422603607178,
       "expected_label": 0,
-      "expected_eta_days": 14.03839
+      "expected_eta_min_days": 7.6945,
+      "expected_eta_p50_days": 11.86549,
+      "expected_eta_max_days": 23.52533
     },
     {
       "input": {
@@ -49,7 +55,9 @@
       },
       "expected_prob": 0.023123204708099365,
       "expected_label": 0,
-      "expected_eta_days": 9.60824
+      "expected_eta_min_days": 4.11119,
+      "expected_eta_p50_days": 8.26374,
+      "expected_eta_max_days": 15.41497
     },
     {
       "input": {
@@ -61,7 +69,9 @@
       },
       "expected_prob": 0.09233719110488892,
       "expected_label": 0,
-      "expected_eta_days": 5.98497
+      "expected_eta_min_days": 2.43339,
+      "expected_eta_p50_days": 4.56586,
+      "expected_eta_max_days": 14.31939
     },
     {
       "input": {
@@ -73,7 +83,9 @@
       },
       "expected_prob": 0.06784069538116455,
       "expected_label": 0,
-      "expected_eta_days": 7.68654
+      "expected_eta_min_days": 2.08904,
+      "expected_eta_p50_days": 6.50758,
+      "expected_eta_max_days": 13.33543
     },
     {
       "input": {
@@ -85,7 +97,9 @@
       },
       "expected_prob": 0.0482366681098938,
       "expected_label": 0,
-      "expected_eta_days": 10.59936
+      "expected_eta_min_days": 5.59999,
+      "expected_eta_p50_days": 9.35042,
+      "expected_eta_max_days": 18.49855
     },
     {
       "input": {
@@ -97,7 +111,9 @@
       },
       "expected_prob": 0.012062013149261475,
       "expected_label": 0,
-      "expected_eta_days": 14.015
+      "expected_eta_min_days": 7.22136,
+      "expected_eta_p50_days": 12.91636,
+      "expected_eta_max_days": 22.99055
     },
     {
       "input": {
@@ -109,7 +125,9 @@
       },
       "expected_prob": 0.011077284812927246,
       "expected_label": 0,
-      "expected_eta_days": 9.97437
+      "expected_eta_min_days": 4.66927,
+      "expected_eta_p50_days": 8.28844,
+      "expected_eta_max_days": 15.56669
     },
     {
       "input": {
@@ -121,7 +139,9 @@
       },
       "expected_prob": 0.07544213533401489,
       "expected_label": 0,
-      "expected_eta_days": 10.89139
+      "expected_eta_min_days": 5.37604,
+      "expected_eta_p50_days": 9.21914,
+      "expected_eta_max_days": 18.75001
     },
     {
       "input": {
@@ -133,7 +153,9 @@
       },
       "expected_prob": 0.21168243885040283,
       "expected_label": 1,
-      "expected_eta_days": 23.10555
+      "expected_eta_min_days": 11.13715,
+      "expected_eta_p50_days": 19.83259,
+      "expected_eta_max_days": 39.82503
     },
     {
       "input": {
@@ -145,7 +167,9 @@
       },
       "expected_prob": 0.08642810583114624,
       "expected_label": 0,
-      "expected_eta_days": 14.76021
+      "expected_eta_min_days": 7.46879,
+      "expected_eta_p50_days": 12.03679,
+      "expected_eta_max_days": 24.58211
     },
     {
       "input": {
@@ -157,7 +181,9 @@
       },
       "expected_prob": 0.13335245847702026,
       "expected_label": 1,
-      "expected_eta_days": 15.91336
+      "expected_eta_min_days": 7.09639,
+      "expected_eta_p50_days": 13.19431,
+      "expected_eta_max_days": 27.43399
     },
     {
       "input": {
@@ -169,7 +195,9 @@
       },
       "expected_prob": 0.007612466812133789,
       "expected_label": 0,
-      "expected_eta_days": 9.83587
+      "expected_eta_min_days": 4.77533,
+      "expected_eta_p50_days": 8.89792,
+      "expected_eta_max_days": 15.60142
     },
     {
       "input": {
@@ -181,7 +209,9 @@
       },
       "expected_prob": 0.07154154777526855,
       "expected_label": 0,
-      "expected_eta_days": 10.05463
+      "expected_eta_min_days": 4.09129,
+      "expected_eta_p50_days": 8.20601,
+      "expected_eta_max_days": 16.88563
     },
     {
       "input": {
@@ -193,7 +223,9 @@
       },
       "expected_prob": 0.02174919843673706,
       "expected_label": 0,
-      "expected_eta_days": 13.49175
+      "expected_eta_min_days": 7.85175,
+      "expected_eta_p50_days": 12.98417,
+      "expected_eta_max_days": 20.10641
     },
     {
       "input": {
@@ -205,7 +237,9 @@
       },
       "expected_prob": 0.1310105323791504,
       "expected_label": 1,
-      "expected_eta_days": 18.55022
+      "expected_eta_min_days": 9.17314,
+      "expected_eta_p50_days": 18.27339,
+      "expected_eta_max_days": 26.53494
     },
     {
       "input": {
@@ -217,7 +251,9 @@
       },
       "expected_prob": 0.17629873752593994,
       "expected_label": 1,
-      "expected_eta_days": 13.82087
+      "expected_eta_min_days": 6.11534,
+      "expected_eta_p50_days": 11.47833,
+      "expected_eta_max_days": 26.37535
     },
     {
       "input": {
@@ -229,7 +265,9 @@
       },
       "expected_prob": 0.06464141607284546,
       "expected_label": 0,
-      "expected_eta_days": 11.17984
+      "expected_eta_min_days": 5.55715,
+      "expected_eta_p50_days": 9.01084,
+      "expected_eta_max_days": 18.09255
     },
     {
       "input": {
@@ -241,7 +279,9 @@
       },
       "expected_prob": 0.12359774112701416,
       "expected_label": 1,
-      "expected_eta_days": 18.81745
+      "expected_eta_min_days": 9.96211,
+      "expected_eta_p50_days": 16.83015,
+      "expected_eta_max_days": 29.5863
     },
     {
       "input": {
@@ -253,7 +293,9 @@
       },
       "expected_prob": 0.00012111663818359375,
       "expected_label": 0,
-      "expected_eta_days": 11.11198
+      "expected_eta_min_days": 6.08227,
+      "expected_eta_p50_days": 10.20501,
+      "expected_eta_max_days": 17.93069
     },
     {
       "input": {
@@ -265,7 +307,9 @@
       },
       "expected_prob": 0.0546722412109375,
       "expected_label": 0,
-      "expected_eta_days": 8.33411
+      "expected_eta_min_days": 3.55771,
+      "expected_eta_p50_days": 6.8851,
+      "expected_eta_max_days": 14.90396
     },
     {
       "input": {
@@ -277,7 +321,9 @@
       },
       "expected_prob": 0.06706905364990234,
       "expected_label": 0,
-      "expected_eta_days": 12.34939
+      "expected_eta_min_days": 5.11676,
+      "expected_eta_p50_days": 10.34155,
+      "expected_eta_max_days": 20.26645
     },
     {
       "input": {
@@ -289,7 +335,9 @@
       },
       "expected_prob": 0.032060861587524414,
       "expected_label": 0,
-      "expected_eta_days": 8.38364
+      "expected_eta_min_days": 3.29475,
+      "expected_eta_p50_days": 7.45101,
+      "expected_eta_max_days": 13.95123
     },
     {
       "input": {
@@ -301,7 +349,9 @@
       },
       "expected_prob": 0.12192261219024658,
       "expected_label": 1,
-      "expected_eta_days": 12.94013
+      "expected_eta_min_days": 5.83795,
+      "expected_eta_p50_days": 10.25446,
+      "expected_eta_max_days": 21.86845
     },
     {
       "input": {
@@ -313,7 +363,9 @@
       },
       "expected_prob": 0.04541516304016113,
       "expected_label": 0,
-      "expected_eta_days": 13.72829
+      "expected_eta_min_days": 6.81749,
+      "expected_eta_p50_days": 11.67685,
+      "expected_eta_max_days": 21.40156
     },
     {
       "input": {
@@ -325,7 +377,9 @@
       },
       "expected_prob": 0.08714538812637329,
       "expected_label": 0,
-      "expected_eta_days": 9.1998
+      "expected_eta_min_days": 3.92506,
+      "expected_eta_p50_days": 7.08691,
+      "expected_eta_max_days": 16.70357
     },
     {
       "input": {
@@ -337,7 +391,9 @@
       },
       "expected_prob": 0.07493811845779419,
       "expected_label": 0,
-      "expected_eta_days": 14.6699
+      "expected_eta_min_days": 7.25163,
+      "expected_eta_p50_days": 12.85315,
+      "expected_eta_max_days": 24.67187
     },
     {
       "input": {
@@ -349,7 +405,9 @@
       },
       "expected_prob": 0.10265964269638062,
       "expected_label": 0,
-      "expected_eta_days": 12.57691
+      "expected_eta_min_days": 5.91359,
+      "expected_eta_p50_days": 10.47958,
+      "expected_eta_max_days": 22.41782
     },
     {
       "input": {
@@ -361,7 +419,9 @@
       },
       "expected_prob": 0.1487184762954712,
       "expected_label": 1,
-      "expected_eta_days": 17.11009
+      "expected_eta_min_days": 7.2792,
+      "expected_eta_p50_days": 13.89633,
+      "expected_eta_max_days": 29.28573
     },
     {
       "input": {
@@ -373,7 +433,9 @@
       },
       "expected_prob": 0.05074054002761841,
       "expected_label": 0,
-      "expected_eta_days": 7.88682
+      "expected_eta_min_days": 2.95937,
+      "expected_eta_p50_days": 8.16814,
+      "expected_eta_max_days": 14.95864
     },
     {
       "input": {
@@ -385,7 +447,9 @@
       },
       "expected_prob": 0.06229525804519653,
       "expected_label": 0,
-      "expected_eta_days": 13.35349
+      "expected_eta_min_days": 7.22563,
+      "expected_eta_p50_days": 12.27906,
+      "expected_eta_max_days": 21.69116
     },
     {
       "input": {
@@ -397,7 +461,9 @@
       },
       "expected_prob": 0.24032443761825562,
       "expected_label": 1,
-      "expected_eta_days": 22.70994
+      "expected_eta_min_days": 11.33742,
+      "expected_eta_p50_days": 19.75082,
+      "expected_eta_max_days": 36.54296
     },
     {
       "input": {
@@ -409,7 +475,9 @@
       },
       "expected_prob": 0.12062257528305054,
       "expected_label": 1,
-      "expected_eta_days": 16.42852
+      "expected_eta_min_days": 8.78039,
+      "expected_eta_p50_days": 15.62348,
+      "expected_eta_max_days": 28.1381
     },
     {
       "input": {
@@ -421,7 +489,9 @@
       },
       "expected_prob": 0.01885145902633667,
       "expected_label": 0,
-      "expected_eta_days": 10.95959
+      "expected_eta_min_days": 4.71803,
+      "expected_eta_p50_days": 9.77792,
+      "expected_eta_max_days": 17.17476
     },
     {
       "input": {
@@ -433,7 +503,9 @@
       },
       "expected_prob": 0.14411044120788574,
       "expected_label": 1,
-      "expected_eta_days": 21.29075
+      "expected_eta_min_days": 10.50641,
+      "expected_eta_p50_days": 18.884,
+      "expected_eta_max_days": 33.94791
     },
     {
       "input": {
@@ -445,7 +517,9 @@
       },
       "expected_prob": 0.06112247705459595,
       "expected_label": 0,
-      "expected_eta_days": 5.83703
+      "expected_eta_min_days": 2.20165,
+      "expected_eta_p50_days": 4.79995,
+      "expected_eta_max_days": 10.53793
     },
     {
       "input": {
@@ -457,7 +531,9 @@
       },
       "expected_prob": 8.463859558105469e-05,
       "expected_label": 0,
-      "expected_eta_days": 9.34025
+      "expected_eta_min_days": 4.43909,
+      "expected_eta_p50_days": 7.94625,
+      "expected_eta_max_days": 16.08752
     },
     {
       "input": {
@@ -469,7 +545,9 @@
       },
       "expected_prob": 0.00010859966278076172,
       "expected_label": 0,
-      "expected_eta_days": 11.24978
+      "expected_eta_min_days": 5.84664,
+      "expected_eta_p50_days": 10.29293,
+      "expected_eta_max_days": 17.73414
     },
     {
       "input": {
@@ -481,7 +559,9 @@
       },
       "expected_prob": 0.01606452465057373,
       "expected_label": 0,
-      "expected_eta_days": 9.92856
+      "expected_eta_min_days": 4.61543,
+      "expected_eta_p50_days": 8.92326,
+      "expected_eta_max_days": 16.74853
     },
     {
       "input": {
@@ -493,7 +573,9 @@
       },
       "expected_prob": 0.05204570293426514,
       "expected_label": 0,
-      "expected_eta_days": 12.43193
+      "expected_eta_min_days": 6.08869,
+      "expected_eta_p50_days": 10.55007,
+      "expected_eta_max_days": 19.49066
     },
     {
       "input": {
@@ -505,7 +587,9 @@
       },
       "expected_prob": 0.05519992113113403,
       "expected_label": 0,
-      "expected_eta_days": 6.50446
+      "expected_eta_min_days": 2.2298,
+      "expected_eta_p50_days": 5.2908,
+      "expected_eta_max_days": 11.45409
     },
     {
       "input": {
@@ -517,7 +601,9 @@
       },
       "expected_prob": 0.054436326026916504,
       "expected_label": 0,
-      "expected_eta_days": 7.29419
+      "expected_eta_min_days": 2.57398,
+      "expected_eta_p50_days": 6.19007,
+      "expected_eta_max_days": 11.80517
     },
     {
       "input": {
@@ -529,7 +615,9 @@
       },
       "expected_prob": 0.10039955377578735,
       "expected_label": 0,
-      "expected_eta_days": 15.99983
+      "expected_eta_min_days": 7.03828,
+      "expected_eta_p50_days": 13.14264,
+      "expected_eta_max_days": 27.20471
     },
     {
       "input": {
@@ -541,7 +629,9 @@
       },
       "expected_prob": 0.13451069593429565,
       "expected_label": 1,
-      "expected_eta_days": 21.31268
+      "expected_eta_min_days": 11.12171,
+      "expected_eta_p50_days": 18.46053,
+      "expected_eta_max_days": 34.53675
     },
     {
       "input": {
@@ -553,7 +643,9 @@
       },
       "expected_prob": 0.0305902361869812,
       "expected_label": 0,
-      "expected_eta_days": 4.9712
+      "expected_eta_min_days": 1.7604,
+      "expected_eta_p50_days": 4.17605,
+      "expected_eta_max_days": 8.34109
     },
     {
       "input": {
@@ -565,7 +657,9 @@
       },
       "expected_prob": 0.030535340309143066,
       "expected_label": 0,
-      "expected_eta_days": 6.59225
+      "expected_eta_min_days": 2.33463,
+      "expected_eta_p50_days": 6.16353,
+      "expected_eta_max_days": 11.56853
     },
     {
       "input": {
@@ -577,7 +671,9 @@
       },
       "expected_prob": 0.1359248161315918,
       "expected_label": 1,
-      "expected_eta_days": 15.7235
+      "expected_eta_min_days": 7.38865,
+      "expected_eta_p50_days": 13.11074,
+      "expected_eta_max_days": 28.07924
     },
     {
       "input": {
@@ -589,7 +685,9 @@
       },
       "expected_prob": 0.07843822240829468,
       "expected_label": 0,
-      "expected_eta_days": 11.13459
+      "expected_eta_min_days": 5.38172,
+      "expected_eta_p50_days": 9.48399,
+      "expected_eta_max_days": 18.03073
     },
     {
       "input": {
@@ -601,7 +699,9 @@
       },
       "expected_prob": 0.1338009238243103,
       "expected_label": 1,
-      "expected_eta_days": 16.09459
+      "expected_eta_min_days": 7.37316,
+      "expected_eta_p50_days": 13.60968,
+      "expected_eta_max_days": 29.90263
     },
     {
       "input": {
@@ -613,7 +713,9 @@
       },
       "expected_prob": 0.029606878757476807,
       "expected_label": 0,
-      "expected_eta_days": 11.70994
+      "expected_eta_min_days": 6.59604,
+      "expected_eta_p50_days": 10.73473,
+      "expected_eta_max_days": 18.76491
     },
     {
       "input": {
@@ -625,7 +727,9 @@
       },
       "expected_prob": 0.06505042314529419,
       "expected_label": 0,
-      "expected_eta_days": 12.31728
+      "expected_eta_min_days": 6.0857,
+      "expected_eta_p50_days": 11.18048,
+      "expected_eta_max_days": 19.55517
     },
     {
       "input": {
@@ -637,7 +741,9 @@
       },
       "expected_prob": 0.04218333959579468,
       "expected_label": 0,
-      "expected_eta_days": 5.28899
+      "expected_eta_min_days": 1.81495,
+      "expected_eta_p50_days": 4.7285,
+      "expected_eta_max_days": 7.69347
     },
     {
       "input": {
@@ -649,7 +755,9 @@
       },
       "expected_prob": 0.03110504150390625,
       "expected_label": 0,
-      "expected_eta_days": 15.58404
+      "expected_eta_min_days": 8.95643,
+      "expected_eta_p50_days": 14.22137,
+      "expected_eta_max_days": 25.55134
     },
     {
       "input": {
@@ -661,7 +769,9 @@
       },
       "expected_prob": 0.04103541374206543,
       "expected_label": 0,
-      "expected_eta_days": 6.25093
+      "expected_eta_min_days": 1.91724,
+      "expected_eta_p50_days": 5.17424,
+      "expected_eta_max_days": 10.70053
     },
     {
       "input": {
@@ -673,7 +783,9 @@
       },
       "expected_prob": 0.13387012481689453,
       "expected_label": 1,
-      "expected_eta_days": 17.55825
+      "expected_eta_min_days": 7.88884,
+      "expected_eta_p50_days": 14.02458,
+      "expected_eta_max_days": 29.45668
     },
     {
       "input": {
@@ -685,7 +797,9 @@
       },
       "expected_prob": 0.05758702754974365,
       "expected_label": 0,
-      "expected_eta_days": 12.53032
+      "expected_eta_min_days": 5.50587,
+      "expected_eta_p50_days": 10.42391,
+      "expected_eta_max_days": 19.8902
     },
     {
       "input": {
@@ -697,7 +811,9 @@
       },
       "expected_prob": 0.05989432334899902,
       "expected_label": 0,
-      "expected_eta_days": 8.56132
+      "expected_eta_min_days": 3.01542,
+      "expected_eta_p50_days": 7.03665,
+      "expected_eta_max_days": 17.39721
     },
     {
       "input": {
@@ -709,7 +825,9 @@
       },
       "expected_prob": 0.15083354711532593,
       "expected_label": 1,
-      "expected_eta_days": 15.26818
+      "expected_eta_min_days": 7.19868,
+      "expected_eta_p50_days": 13.70179,
+      "expected_eta_max_days": 27.36659
     },
     {
       "input": {
@@ -721,7 +839,9 @@
       },
       "expected_prob": 0.09732604026794434,
       "expected_label": 0,
-      "expected_eta_days": 12.42446
+      "expected_eta_min_days": 5.67558,
+      "expected_eta_p50_days": 9.47991,
+      "expected_eta_max_days": 19.68968
     },
     {
       "input": {
@@ -733,7 +853,9 @@
       },
       "expected_prob": 0.23098260164260864,
       "expected_label": 1,
-      "expected_eta_days": 17.93841
+      "expected_eta_min_days": 6.34816,
+      "expected_eta_p50_days": 13.25703,
+      "expected_eta_max_days": 33.96713
     },
     {
       "input": {
@@ -745,7 +867,9 @@
       },
       "expected_prob": 0.1312461495399475,
       "expected_label": 1,
-      "expected_eta_days": 15.3793
+      "expected_eta_min_days": 6.00248,
+      "expected_eta_p50_days": 12.03646,
+      "expected_eta_max_days": 29.73663
     },
     {
       "input": {
@@ -757,7 +881,9 @@
       },
       "expected_prob": 0.05345076322555542,
       "expected_label": 0,
-      "expected_eta_days": 5.83703
+      "expected_eta_min_days": 2.19688,
+      "expected_eta_p50_days": 4.68634,
+      "expected_eta_max_days": 12.11823
     },
     {
       "input": {
@@ -769,7 +895,9 @@
       },
       "expected_prob": 0.07240396738052368,
       "expected_label": 0,
-      "expected_eta_days": 20.17391
+      "expected_eta_min_days": 10.21457,
+      "expected_eta_p50_days": 17.98716,
+      "expected_eta_max_days": 29.35534
     },
     {
       "input": {
@@ -781,7 +909,9 @@
       },
       "expected_prob": 9.66787338256836e-05,
       "expected_label": 0,
-      "expected_eta_days": 18.08475
+      "expected_eta_min_days": 9.70882,
+      "expected_eta_p50_days": 16.77125,
+      "expected_eta_max_days": 27.41613
     },
     {
       "input": {
@@ -793,7 +923,9 @@
       },
       "expected_prob": 0.05673348903656006,
       "expected_label": 0,
-      "expected_eta_days": 11.02885
+      "expected_eta_min_days": 5.33532,
+      "expected_eta_p50_days": 9.33573,
+      "expected_eta_max_days": 20.36218
     },
     {
       "input": {
@@ -805,7 +937,9 @@
       },
       "expected_prob": 9.572505950927734e-05,
       "expected_label": 0,
-      "expected_eta_days": 9.66761
+      "expected_eta_min_days": 5.04201,
+      "expected_eta_p50_days": 8.63795,
+      "expected_eta_max_days": 16.46597
     },
     {
       "input": {
@@ -817,7 +951,9 @@
       },
       "expected_prob": 0.1510487198829651,
       "expected_label": 1,
-      "expected_eta_days": 19.55234
+      "expected_eta_min_days": 10.0988,
+      "expected_eta_p50_days": 17.71166,
+      "expected_eta_max_days": 33.13293
     },
     {
       "input": {
@@ -829,7 +965,9 @@
       },
       "expected_prob": 7.975101470947266e-05,
       "expected_label": 0,
-      "expected_eta_days": 10.9603
+      "expected_eta_min_days": 5.38675,
+      "expected_eta_p50_days": 9.75014,
+      "expected_eta_max_days": 17.51701
     },
     {
       "input": {
@@ -841,7 +979,9 @@
       },
       "expected_prob": 0.14855951070785522,
       "expected_label": 1,
-      "expected_eta_days": 16.88235
+      "expected_eta_min_days": 8.42057,
+      "expected_eta_p50_days": 16.23335,
+      "expected_eta_max_days": 30.02409
     },
     {
       "input": {
@@ -853,7 +993,9 @@
       },
       "expected_prob": 0.04122084379196167,
       "expected_label": 0,
-      "expected_eta_days": 10.71111
+      "expected_eta_min_days": 4.83229,
+      "expected_eta_p50_days": 8.97127,
+      "expected_eta_max_days": 17.54663
     },
     {
       "input": {
@@ -865,7 +1007,9 @@
       },
       "expected_prob": 0.05016946792602539,
       "expected_label": 0,
-      "expected_eta_days": 6.89733
+      "expected_eta_min_days": 2.53455,
+      "expected_eta_p50_days": 5.80083,
+      "expected_eta_max_days": 11.89707
     },
     {
       "input": {
@@ -877,7 +1021,9 @@
       },
       "expected_prob": 0.05075877904891968,
       "expected_label": 0,
-      "expected_eta_days": 12.50037
+      "expected_eta_min_days": 5.76032,
+      "expected_eta_p50_days": 10.77587,
+      "expected_eta_max_days": 20.10672
     },
     {
       "input": {
@@ -889,7 +1035,9 @@
       },
       "expected_prob": 0.03888225555419922,
       "expected_label": 0,
-      "expected_eta_days": 10.2676
+      "expected_eta_min_days": 4.65765,
+      "expected_eta_p50_days": 9.17705,
+      "expected_eta_max_days": 17.47288
     },
     {
       "input": {
@@ -901,7 +1049,9 @@
       },
       "expected_prob": 9.85860824584961e-05,
       "expected_label": 0,
-      "expected_eta_days": 20.13066
+      "expected_eta_min_days": 9.91945,
+      "expected_eta_p50_days": 17.85648,
+      "expected_eta_max_days": 32.45063
     },
     {
       "input": {
@@ -913,7 +1063,9 @@
       },
       "expected_prob": 0.023939311504364014,
       "expected_label": 0,
-      "expected_eta_days": 6.37028
+      "expected_eta_min_days": 2.32036,
+      "expected_eta_p50_days": 5.21485,
+      "expected_eta_max_days": 10.52361
     },
     {
       "input": {
@@ -925,7 +1077,9 @@
       },
       "expected_prob": 0.24484199285507202,
       "expected_label": 1,
-      "expected_eta_days": 23.31759
+      "expected_eta_min_days": 10.60227,
+      "expected_eta_p50_days": 20.47847,
+      "expected_eta_max_days": 42.60191
     },
     {
       "input": {
@@ -937,7 +1091,9 @@
       },
       "expected_prob": 0.07770001888275146,
       "expected_label": 0,
-      "expected_eta_days": 14.12746
+      "expected_eta_min_days": 9.27326,
+      "expected_eta_p50_days": 14.42397,
+      "expected_eta_max_days": 18.87747
     },
     {
       "input": {
@@ -949,7 +1105,9 @@
       },
       "expected_prob": 0.10335606336593628,
       "expected_label": 0,
-      "expected_eta_days": 14.64558
+      "expected_eta_min_days": 6.51725,
+      "expected_eta_p50_days": 13.21586,
+      "expected_eta_max_days": 24.7771
     },
     {
       "input": {
@@ -961,7 +1119,9 @@
       },
       "expected_prob": 0.18525254726409912,
       "expected_label": 1,
-      "expected_eta_days": 21.43526
+      "expected_eta_min_days": 11.70486,
+      "expected_eta_p50_days": 18.94325,
+      "expected_eta_max_days": 34.8049
     },
     {
       "input": {
@@ -973,7 +1133,9 @@
       },
       "expected_prob": 0.15401184558868408,
       "expected_label": 1,
-      "expected_eta_days": 21.75644
+      "expected_eta_min_days": 11.84677,
+      "expected_eta_p50_days": 19.29094,
+      "expected_eta_max_days": 34.75781
     },
     {
       "input": {
@@ -985,7 +1147,9 @@
       },
       "expected_prob": 0.13002091646194458,
       "expected_label": 1,
-      "expected_eta_days": 8.74392
+      "expected_eta_min_days": 2.56594,
+      "expected_eta_p50_days": 7.05392,
+      "expected_eta_max_days": 11.12912
     },
     {
       "input": {
@@ -997,7 +1161,9 @@
       },
       "expected_prob": 0.10120809078216553,
       "expected_label": 0,
-      "expected_eta_days": 11.81234
+      "expected_eta_min_days": 5.54086,
+      "expected_eta_p50_days": 9.31621,
+      "expected_eta_max_days": 21.68266
     },
     {
       "input": {
@@ -1009,7 +1175,9 @@
       },
       "expected_prob": 0.09156805276870728,
       "expected_label": 0,
-      "expected_eta_days": 12.3834
+      "expected_eta_min_days": 5.71179,
+      "expected_eta_p50_days": 10.09407,
+      "expected_eta_max_days": 21.81227
     },
     {
       "input": {
@@ -1021,7 +1189,9 @@
       },
       "expected_prob": 0.13210433721542358,
       "expected_label": 1,
-      "expected_eta_days": 20.31046
+      "expected_eta_min_days": 10.1122,
+      "expected_eta_p50_days": 17.56581,
+      "expected_eta_max_days": 32.02638
     },
     {
       "input": {
@@ -1033,7 +1203,9 @@
       },
       "expected_prob": 0.0995745062828064,
       "expected_label": 0,
-      "expected_eta_days": 12.51844
+      "expected_eta_min_days": 6.05881,
+      "expected_eta_p50_days": 10.48413,
+      "expected_eta_max_days": 21.04093
     },
     {
       "input": {
@@ -1045,7 +1217,9 @@
       },
       "expected_prob": 8.356571197509766e-05,
       "expected_label": 0,
-      "expected_eta_days": 5.76757
+      "expected_eta_min_days": 1.69747,
+      "expected_eta_p50_days": 4.51049,
+      "expected_eta_max_days": 10.37296
     },
     {
       "input": {
@@ -1057,7 +1231,9 @@
       },
       "expected_prob": 0.0492435097694397,
       "expected_label": 0,
-      "expected_eta_days": 12.61985
+      "expected_eta_min_days": 5.70004,
+      "expected_eta_p50_days": 11.58436,
+      "expected_eta_max_days": 20.79832
     },
     {
       "input": {
@@ -1069,7 +1245,9 @@
       },
       "expected_prob": 0.04926937818527222,
       "expected_label": 0,
-      "expected_eta_days": 11.56094
+      "expected_eta_min_days": 6.28043,
+      "expected_eta_p50_days": 10.46701,
+      "expected_eta_max_days": 20.26174
     },
     {
       "input": {
@@ -1081,7 +1259,9 @@
       },
       "expected_prob": 0.19376742839813232,
       "expected_label": 1,
-      "expected_eta_days": 21.45305
+      "expected_eta_min_days": 10.76207,
+      "expected_eta_p50_days": 18.19733,
+      "expected_eta_max_days": 34.12247
     },
     {
       "input": {
@@ -1093,7 +1273,9 @@
       },
       "expected_prob": 0.08878833055496216,
       "expected_label": 0,
-      "expected_eta_days": 15.17471
+      "expected_eta_min_days": 6.15554,
+      "expected_eta_p50_days": 13.03215,
+      "expected_eta_max_days": 24.38551
     },
     {
       "input": {
@@ -1105,7 +1287,9 @@
       },
       "expected_prob": 0.07087969779968262,
       "expected_label": 0,
-      "expected_eta_days": 12.78968
+      "expected_eta_min_days": 7.0469,
+      "expected_eta_p50_days": 10.62523,
+      "expected_eta_max_days": 21.60315
     },
     {
       "input": {
@@ -1117,7 +1301,9 @@
       },
       "expected_prob": 0.04517316818237305,
       "expected_label": 0,
-      "expected_eta_days": 12.3013
+      "expected_eta_min_days": 6.00289,
+      "expected_eta_p50_days": 10.84137,
+      "expected_eta_max_days": 20.64561
     },
     {
       "input": {
@@ -1129,7 +1315,9 @@
       },
       "expected_prob": 0.07468467950820923,
       "expected_label": 0,
-      "expected_eta_days": 15.74409
+      "expected_eta_min_days": 7.90345,
+      "expected_eta_p50_days": 13.21593,
+      "expected_eta_max_days": 24.63576
     },
     {
       "input": {
@@ -1141,7 +1329,9 @@
       },
       "expected_prob": 0.032592058181762695,
       "expected_label": 0,
-      "expected_eta_days": 10.74498
+      "expected_eta_min_days": 4.80483,
+      "expected_eta_p50_days": 9.46373,
+      "expected_eta_max_days": 19.3075
     },
     {
       "input": {
@@ -1153,7 +1343,9 @@
       },
       "expected_prob": 0.030552268028259277,
       "expected_label": 0,
-      "expected_eta_days": 11.65469
+      "expected_eta_min_days": 5.82897,
+      "expected_eta_p50_days": 9.09498,
+      "expected_eta_max_days": 18.57131
     },
     {
       "input": {
@@ -1165,7 +1357,9 @@
       },
       "expected_prob": 0.09219640493392944,
       "expected_label": 0,
-      "expected_eta_days": 12.29017
+      "expected_eta_min_days": 5.76219,
+      "expected_eta_p50_days": 10.83169,
+      "expected_eta_max_days": 22.46994
     },
     {
       "input": {
@@ -1177,7 +1371,9 @@
       },
       "expected_prob": 0.04054051637649536,
       "expected_label": 0,
-      "expected_eta_days": 11.04431
+      "expected_eta_min_days": 5.16484,
+      "expected_eta_p50_days": 9.41995,
+      "expected_eta_max_days": 18.93632
     },
     {
       "input": {
@@ -1189,7 +1385,9 @@
       },
       "expected_prob": 0.1732853651046753,
       "expected_label": 1,
-      "expected_eta_days": 20.86842
+      "expected_eta_min_days": 10.88579,
+      "expected_eta_p50_days": 18.02673,
+      "expected_eta_max_days": 35.12253
     },
     {
       "input": {
@@ -1201,7 +1399,9 @@
       },
       "expected_prob": 0.06021767854690552,
       "expected_label": 0,
-      "expected_eta_days": 15.32253
+      "expected_eta_min_days": 7.89222,
+      "expected_eta_p50_days": 13.49751,
+      "expected_eta_max_days": 25.74115
     }
   ]
 }

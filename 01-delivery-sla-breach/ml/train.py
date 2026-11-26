@@ -24,6 +24,8 @@ from sklearn.metrics import (
     root_mean_squared_error,
 )
 from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
 
 DATA_DIR = Path(__file__).resolve().parent / "data"
 ROOT = Path(__file__).resolve().parents[1]
@@ -254,7 +256,7 @@ def main():
 
     # --- 2. Regression Benchmark (delivery_days ETA) ---
     reg_candidates = [
-        ("Ridge", Ridge(alpha=1.0), True),
+        ("Ridge", make_pipeline(StandardScaler(), Ridge(alpha=1.0)), True),
         ("RandomForestReg", RandomForestRegressor(n_estimators=150, max_depth=12, min_samples_leaf=20, n_jobs=-1, random_state=42), False),
         ("CatBoostReg", CatBoostRegressor(iterations=300, depth=6, learning_rate=0.08, random_seed=42, verbose=0, allow_writing_files=False), False),
         ("XGBRegressor", XGBRegressor(n_estimators=120, max_depth=5, learning_rate=0.08, random_state=42), False),
@@ -277,7 +279,104 @@ def main():
     for r in reg_results:
         print(f"{r['name']:18s} | {r['mae']:10.4f} | {r['rmse']:11.4f} | {r['r2']:7.4f}")
 
-    # --- 3. Export LightGBM Classifier + Regressor -> ONNX ---
+    # --- 3. Conformalized Quantile Regression (CQR) Benchmark (p10 / p50 / p90) ---
+    coverage_target = float(contract.get("eta_coverage_target", 0.80))
+    alpha_low = (1.0 - coverage_target) / 2.0   # 0.10
+    alpha_high = 1.0 - alpha_low                # 0.90
+
+    X_fit, X_cal, y_fit, y_cal = train_test_split(
+        X_train, y_reg_train, test_size=0.2, random_state=42
+    )
+
+    cqr_builders = [
+        (
+            "LightGBM-CQR",
+            lambda q: LGBMRegressor(
+                objective="quantile",
+                alpha=q,
+                n_estimators=120,
+                num_leaves=31,
+                learning_rate=0.08,
+                random_state=42,
+                verbose=-1,
+            ),
+        ),
+        (
+            "XGBoost-CQR",
+            lambda q: XGBRegressor(
+                objective="reg:quantileerror",
+                quantile_alpha=q,
+                n_estimators=120,
+                max_depth=5,
+                learning_rate=0.08,
+                random_state=42,
+            ),
+        ),
+        (
+            "CatBoost-CQR",
+            lambda q: CatBoostRegressor(
+                loss_function=f"Quantile:alpha={q}",
+                iterations=300,
+                depth=6,
+                learning_rate=0.08,
+                random_seed=42,
+                verbose=0,
+                allow_writing_files=False,
+            ),
+        ),
+    ]
+
+    cqr_results = []
+    trained_cqr = {}
+
+    for name, build_fn in cqr_builders:
+        q_models = {}
+        for label, q_alpha in [("p10", alpha_low), ("p50", 0.50), ("p90", alpha_high)]:
+            m = build_fn(q_alpha)
+            m.fit(X_fit, y_fit)
+            q_models[label] = m
+
+        # Calibrate CQR margin Q strictly on held-out calibration split
+        cal_lo = q_models["p10"].predict(X_cal)
+        cal_hi = q_models["p90"].predict(X_cal)
+        conformity_scores = np.maximum(cal_lo - y_cal, y_cal - cal_hi)
+        q_level = min(1.0, coverage_target * (1.0 + 1.0 / len(conformity_scores)))
+        cqr_margin = float(np.quantile(conformity_scores, q_level))
+
+        # Audit Raw vs. CQR empirical coverage & sharpness on unseen X_test
+        test_lo_raw = q_models["p10"].predict(X_test)
+        test_p50_raw = q_models["p50"].predict(X_test)
+        test_hi_raw = q_models["p90"].predict(X_test)
+
+        raw_cov = float(((y_reg_test >= test_lo_raw) & (y_reg_test <= test_hi_raw)).mean())
+        test_lo_cqr = np.maximum(1.0, test_lo_raw - cqr_margin)
+        test_hi_cqr = np.maximum(test_lo_cqr, test_hi_raw + cqr_margin)
+        cqr_cov = float(((y_reg_test >= test_lo_cqr) & (y_reg_test <= test_hi_cqr)).mean())
+        avg_width = float((test_hi_cqr - test_lo_cqr).mean())
+        p50_mae = float(mean_absolute_error(y_reg_test, test_p50_raw))
+
+        trained_cqr[name] = {"models": q_models, "margin": cqr_margin, "raw_cov": raw_cov, "cqr_cov": cqr_cov, "avg_width": avg_width}
+        cqr_results.append({
+            "name": name,
+            "raw_cov": raw_cov,
+            "cqr_cov": cqr_cov,
+            "q_margin": cqr_margin,
+            "avg_width": avg_width,
+            "p50_mae": p50_mae,
+        })
+
+    # Sort ascending by Avg Width (narrowest interval at ~80% coverage wins)
+    cqr_results.sort(key=lambda r: r["avg_width"])
+
+    print(f"\n{'CQR Model':18s} | {'Raw Cov':>7s} | {'CQR Cov':>7s} | {'Q Margin':>8s} | {'Avg Width':>9s} | {'p50 MAE':>7s}")
+    print("-" * 70)
+    for r in cqr_results:
+        print(
+            f"{r['name']:18s} | {r['raw_cov']:6.2%} | {r['cqr_cov']:6.2%} "
+            f"| {r['q_margin']:+7.3f}d | {r['avg_width']:8.3f}d | {r['p50_mae']:6.3f}d"
+        )
+
+    # --- 4. Export LightGBM Classifier + CQR Quantile Models -> ONNX ---
     initial_type = [("input", FloatTensorType([None, len(feature_cols)]))]
 
     clf_onnx = onnxmltools.convert_lightgbm(
@@ -289,19 +388,36 @@ def main():
     model_path = ARTIFACTS_DIR / "model.onnx"
     onnxmltools.utils.save_model(clf_onnx, str(model_path))
 
-    eta_onnx = onnxmltools.convert_lightgbm(
-        trained_regs["LGBMRegressor"],
-        initial_types=initial_type,
-        target_opset=15,
-    )
-    eta_path = ARTIFACTS_DIR / "eta_model.onnx"
-    onnxmltools.utils.save_model(eta_onnx, str(eta_path))
+    lgb_cqr = trained_cqr["LightGBM-CQR"]
+    q_paths = {}
+    for label in ("p10", "p50", "p90"):
+        q_onnx = onnxmltools.convert_lightgbm(
+            lgb_cqr["models"][label],
+            initial_types=initial_type,
+            target_opset=15,
+        )
+        p = ARTIFACTS_DIR / f"eta_{label}.onnx"
+        onnxmltools.utils.save_model(q_onnx, str(p))
+        q_paths[label] = p
 
-    # --- 4. Emit 100 Dual-Output Golden Fixtures (Classifier + Regressor) ---
+    cqr_cal = {
+        "model": "LightGBM-CQR",
+        "coverage_target": coverage_target,
+        "cqr_margin_days": round(lgb_cqr["margin"], 6),
+        "raw_test_coverage": round(lgb_cqr["raw_cov"], 4),
+        "cqr_test_coverage": round(lgb_cqr["cqr_cov"], 4),
+        "avg_interval_width_days": round(lgb_cqr["avg_width"], 3),
+    }
+    (ARTIFACTS_DIR / "cqr_calibration.json").write_text(json.dumps(cqr_cal, indent=2))
+
+    # --- 5. Emit 100 Multi-Output Golden Fixtures (Classifier + CQR Range) ---
     clf_sess = ort.InferenceSession(str(model_path), providers=["CPUExecutionProvider"])
-    eta_sess = ort.InferenceSession(str(eta_path), providers=["CPUExecutionProvider"])
+    p10_sess = ort.InferenceSession(str(q_paths["p10"]), providers=["CPUExecutionProvider"])
+    p50_sess = ort.InferenceSession(str(q_paths["p50"]), providers=["CPUExecutionProvider"])
+    p90_sess = ort.InferenceSession(str(q_paths["p90"]), providers=["CPUExecutionProvider"])
     sample_df = X_test.iloc[:100].reset_index(drop=True)
 
+    q_val = cqr_cal["cqr_margin_days"]
     fixtures = []
     for _, row in sample_df.iterrows():
         raw_input = {
@@ -314,14 +430,23 @@ def main():
         )
         _, row_probs = clf_sess.run(None, {"input": vec})
         late_prob = float(row_probs[0][1])
-        eta_days = float(eta_sess.run(None, {"input": vec})[0][0][0])
+
+        raw_p10 = float(p10_sess.run(None, {"input": vec})[0][0][0])
+        raw_p50 = float(p50_sess.run(None, {"input": vec})[0][0][0])
+        raw_p90 = float(p90_sess.run(None, {"input": vec})[0][0][0])
+
+        eta_min = max(1.0, raw_p10 - q_val)
+        eta_max = max(eta_min, raw_p90 + q_val)
+        eta_p50 = min(max(raw_p50, eta_min), eta_max)
 
         fixtures.append(
             {
                 "input": raw_input,
                 "expected_prob": late_prob,
                 "expected_label": int(late_prob >= threshold),
-                "expected_eta_days": round(eta_days, 5),
+                "expected_eta_min_days": round(eta_min, 5),
+                "expected_eta_p50_days": round(eta_p50, 5),
+                "expected_eta_max_days": round(eta_max, 5),
             }
         )
 
@@ -332,7 +457,7 @@ def main():
         "cases": fixtures,
     }
     (ARTIFACTS_DIR / "golden_fixtures.json").write_text(json.dumps(out, indent=2))
-    print(f"\nExported {model_path.name}, {eta_path.name}, and {len(fixtures)} golden fixtures (schema_hash={schema_hash})")
+    print(f"\nExported model.onnx, eta_p10/p50/p90.onnx, cqr_calibration.json & {len(fixtures)} fixtures (schema_hash={schema_hash})")
 
 if __name__ == "__main__":
     main()

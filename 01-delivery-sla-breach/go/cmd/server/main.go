@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
+	"math"
 	"net/http"
 	"os"
 	"os/signal"
@@ -15,13 +16,22 @@ import (
 	ort "github.com/yalue/onnxruntime_go"
 )
 
+type CQRCalibration struct {
+	CoverageTarget float64 `json:"coverage_target"`
+	CQRMarginDays  float64 `json:"cqr_margin_days"`
+}
+
 type PredictResponse struct {
-	IsLate        bool    `json:"is_late"`
-	Probability   float32 `json:"probability"`
-	Threshold     float32 `json:"threshold"`
-	SchemaVersion string  `json:"schema_version"`
-	SchemaHash    string  `json:"schema_hash"`
-	LatencyUs     int64   `json:"latency_us"`
+	IsLate                bool    `json:"is_late"`
+	Probability           float32 `json:"probability"`
+	PredictedDeliveryDays float64 `json:"predicted_delivery_days"`
+	ETAMinDays            float64 `json:"eta_min_days"`
+	ETAMaxDays            float64 `json:"eta_max_days"`
+	ETACoverageTarget     float64 `json:"eta_coverage_target"`
+	Threshold             float32 `json:"threshold"`
+	SchemaVersion         string  `json:"schema_version"`
+	SchemaHash            string  `json:"schema_hash"`
+	LatencyUs             int64   `json:"latency_us"`
 }
 
 func envOr(key, fallback string) string {
@@ -29,6 +39,15 @@ func envOr(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+func runScalarONNX(sess *ort.DynamicAdvancedSession, inTensor *ort.Tensor[float32]) (float64, error) {
+	out := []ort.Value{nil}
+	if err := sess.Run([]ort.Value{inTensor}, out); err != nil {
+		return 0, err
+	}
+	defer out[0].Destroy()
+	return float64(out[0].(*ort.Tensor[float32]).GetData()[0]), nil
 }
 
 func main() {
@@ -43,18 +62,46 @@ func main() {
 	}
 	defer ort.DestroyEnvironment()
 
-	modelPath := envOr("MODEL_PATH", "../artifacts/model.onnx")
-	session, err := ort.NewDynamicAdvancedSession(
-		modelPath,
-		[]string{"input"},
-		[]string{"label", "probabilities"},
-		nil,
-	)
+	artifactsDir := envOr("ARTIFACTS_DIR", "../artifacts")
+
+	calRaw, err := os.ReadFile(artifactsDir + "/cqr_calibration.json")
 	if err != nil {
-		logger.Error("failed to load onnx model", "path", modelPath, "error", err)
+		logger.Error("failed to read cqr_calibration.json", "error", err)
 		os.Exit(1)
 	}
-	defer session.Destroy()
+	var cal CQRCalibration
+	if err := json.Unmarshal(calRaw, &cal); err != nil {
+		logger.Error("failed to parse cqr_calibration.json", "error", err)
+		os.Exit(1)
+	}
+
+	clfSess, err := ort.NewDynamicAdvancedSession(artifactsDir+"/model.onnx", []string{"input"}, []string{"label", "probabilities"}, nil)
+	if err != nil {
+		logger.Error("failed to load model.onnx", "error", err)
+		os.Exit(1)
+	}
+	defer clfSess.Destroy()
+
+	p10Sess, err := ort.NewDynamicAdvancedSession(artifactsDir+"/eta_p10.onnx", []string{"input"}, []string{"variable"}, nil)
+	if err != nil {
+		logger.Error("failed to load eta_p10.onnx", "error", err)
+		os.Exit(1)
+	}
+	defer p10Sess.Destroy()
+
+	p50Sess, err := ort.NewDynamicAdvancedSession(artifactsDir+"/eta_p50.onnx", []string{"input"}, []string{"variable"}, nil)
+	if err != nil {
+		logger.Error("failed to load eta_p50.onnx", "error", err)
+		os.Exit(1)
+	}
+	defer p50Sess.Destroy()
+
+	p90Sess, err := ort.NewDynamicAdvancedSession(artifactsDir+"/eta_p90.onnx", []string{"input"}, []string{"variable"}, nil)
+	if err != nil {
+		logger.Error("failed to load eta_p90.onnx", "error", err)
+		os.Exit(1)
+	}
+	defer p90Sess.Destroy()
 
 	mux := http.NewServeMux()
 
@@ -87,23 +134,50 @@ func main() {
 		}
 		defer inTensor.Destroy()
 
-		outputs := []ort.Value{nil, nil}
-		if err := session.Run([]ort.Value{inTensor}, outputs); err != nil {
-			logger.Error("onnx inference failed", "error", err)
+		clfOut := []ort.Value{nil, nil}
+		if err := clfSess.Run([]ort.Value{inTensor}, clfOut); err != nil {
+			logger.Error("classifier inference failed", "error", err)
 			http.Error(w, `{"error":"inference failed"}`, http.StatusInternalServerError)
 			return
 		}
-		defer outputs[0].Destroy()
-		defer outputs[1].Destroy()
+		prob := clfOut[1].(*ort.Tensor[float32]).GetData()[1]
+		clfOut[0].Destroy()
+		clfOut[1].Destroy()
 
-		prob := outputs[1].(*ort.Tensor[float32]).GetData()[1]
+		rawP10, err := runScalarONNX(p10Sess, inTensor)
+		if err != nil {
+			logger.Error("p10 inference failed", "error", err)
+			http.Error(w, `{"error":"inference failed"}`, http.StatusInternalServerError)
+			return
+		}
+		rawP50, err := runScalarONNX(p50Sess, inTensor)
+		if err != nil {
+			logger.Error("p50 inference failed", "error", err)
+			http.Error(w, `{"error":"inference failed"}`, http.StatusInternalServerError)
+			return
+		}
+		rawP90, err := runScalarONNX(p90Sess, inTensor)
+		if err != nil {
+			logger.Error("p90 inference failed", "error", err)
+			http.Error(w, `{"error":"inference failed"}`, http.StatusInternalServerError)
+			return
+		}
+
+		etaMin := math.Max(1.0, rawP10-cal.CQRMarginDays)
+		etaMax := math.Max(etaMin, rawP90+cal.CQRMarginDays)
+		etaP50 := math.Min(math.Max(rawP50, etaMin), etaMax)
+
 		resp := PredictResponse{
-			IsLate:        prob >= contract.Threshold,
-			Probability:   prob,
-			Threshold:     contract.Threshold,
-			SchemaVersion: contract.SchemaVersion,
-			SchemaHash:    contract.SchemaHash,
-			LatencyUs:     time.Since(start).Microseconds(),
+			IsLate:                prob >= contract.Threshold,
+			Probability:           prob,
+			PredictedDeliveryDays: math.Round(etaP50*10) / 10,
+			ETAMinDays:            math.Round(etaMin*10) / 10,
+			ETAMaxDays:            math.Round(etaMax*10) / 10,
+			ETACoverageTarget:     cal.CoverageTarget,
+			Threshold:             contract.Threshold,
+			SchemaVersion:         contract.SchemaVersion,
+			SchemaHash:            contract.SchemaHash,
+			LatencyUs:             time.Since(start).Microseconds(),
 		}
 
 		w.Header().Set("Content-Type", "application/json")
@@ -123,9 +197,9 @@ func main() {
 	go func() {
 		logger.Info("starting inference server",
 			"addr", addr,
-			"model", modelPath,
 			"schema_version", contract.SchemaVersion,
 			"schema_hash", contract.SchemaHash,
+			"cqr_margin_days", cal.CQRMarginDays,
 		)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logger.Error("server error", "error", err)

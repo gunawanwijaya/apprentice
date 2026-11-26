@@ -4,7 +4,7 @@ package contract
 import "math"
 
 const (
-	SchemaVersion = "v1.1.0"
+	SchemaVersion = "v1.2.0"
 	SchemaHash    = "fe66b8873d6c"
 	Threshold     = float32(0.12)
 	FeatureCount  = 5

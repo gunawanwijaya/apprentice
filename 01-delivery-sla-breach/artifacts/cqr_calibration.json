@@ -1,0 +1,8 @@
+{
+  "model": "LightGBM-CQR",
+  "coverage_target": 0.8,
+  "cqr_margin_days": 0.113504,
+  "raw_test_coverage": 0.7837,
+  "cqr_test_coverage": 0.795,
+  "avg_interval_width_days": 15.105
+}
