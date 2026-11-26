@@ -17,6 +17,13 @@
         "02-classic-nlp/ml",
         "02-classic-nlp/ml/.venv/lib/python3.12/site-packages"
       ]
+    },
+    {
+      "root": "03-transformer-onnx/ml",
+      "extraPaths": [
+        "03-transformer-onnx/ml",
+        "03-transformer-onnx/ml/.venv/lib/python3.12/site-packages"
+      ]
     }
   ]
 }

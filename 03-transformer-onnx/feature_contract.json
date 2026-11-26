@@ -1,0 +1,13 @@
+{
+  "schema_version": "v1.0.0",
+  "model_id": "prajjwal1/bert-tiny",
+  "max_seq_len": 64,
+  "do_lower_case": true,
+  "vocab_file": "vocab.txt",
+  "labels": [
+    "billing_refund",
+    "delivery_delay",
+    "account_access",
+    "technical_bug"
+  ]
+}
