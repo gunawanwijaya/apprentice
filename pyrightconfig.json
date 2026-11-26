@@ -1,0 +1,22 @@
+{
+  "pythonVersion": "3.12",
+  "typeCheckingMode": "off",
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "warning",
+  "executionEnvironments": [
+    {
+      "root": "01-delivery-sla-breach/ml",
+      "extraPaths": [
+        "01-delivery-sla-breach/ml",
+        "01-delivery-sla-breach/ml/.venv/lib/python3.12/site-packages"
+      ]
+    },
+    {
+      "root": "02-classic-nlp/ml",
+      "extraPaths": [
+        "02-classic-nlp/ml",
+        "02-classic-nlp/ml/.venv/lib/python3.12/site-packages"
+      ]
+    }
+  ]
+}
