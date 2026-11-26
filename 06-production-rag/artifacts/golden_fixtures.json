@@ -1,0 +1,116 @@
+{
+  "schema_version": "v1.0.0",
+  "schema_hash": "dd207803af0b",
+  "corpus_size": 27,
+  "tenants": [
+    "ACCOUNT",
+    "CANCEL",
+    "CONTACT",
+    "DELIVERY",
+    "FEEDBACK",
+    "INVOICE",
+    "ORDER",
+    "PAYMENT",
+    "REFUND",
+    "SHIPPING",
+    "SUBSCRIPTION"
+  ],
+  "golden_cases": [
+    {
+      "query": "new {{Account Type}} acount for wife",
+      "tenant_id": "ACCOUNT",
+      "query_type": "paraphrase",
+      "expected_chunk_id": "POL-ACCO-01#0",
+      "top_rrf_chunk_id": "POL-ACCO-06#0",
+      "top_rrf_score": 0.032787
+    },
+    {
+      "query": "how to open a different fucking {{Account Type}} account for my father?",
+      "tenant_id": "ACCOUNT",
+      "query_type": "paraphrase",
+      "expected_chunk_id": "POL-ACCO-01#0",
+      "top_rrf_chunk_id": "POL-ACCO-02#0",
+      "top_rrf_score": 0.032522
+    },
+    {
+      "query": "new {{Account Type}} account",
+      "tenant_id": "ACCOUNT",
+      "query_type": "paraphrase",
+      "expected_chunk_id": "POL-ACCO-01#0",
+      "top_rrf_chunk_id": "POL-ACCO-06#0",
+      "top_rrf_score": 0.032787
+    },
+    {
+      "query": "i have a problem with creating a freemium account",
+      "tenant_id": "ACCOUNT",
+      "query_type": "paraphrase",
+      "expected_chunk_id": "POL-ACCO-01#0",
+      "top_rrf_chunk_id": "POL-ACCO-01#0",
+      "top_rrf_score": 0.032018
+    },
+    {
+      "query": "Explain the rules and procedure under POL-ACCO-01",
+      "tenant_id": "ACCOUNT",
+      "query_type": "exact_code",
+      "expected_chunk_id": "POL-ACCO-01#0",
+      "top_rrf_chunk_id": "POL-ACCO-01#0",
+      "top_rrf_score": 0.032522
+    },
+    {
+      "query": "closing  platinum account",
+      "tenant_id": "ACCOUNT",
+      "query_type": "paraphrase",
+      "expected_chunk_id": "POL-ACCO-02#0",
+      "top_rrf_chunk_id": "POL-ACCO-02#0",
+      "top_rrf_score": 0.032522
+    },
+    {
+      "query": "Explain the rules and procedure under POL-ACCO-01",
+      "tenant_id": "ACCOUNT",
+      "query_type": "exact_code",
+      "expected_chunk_id": "POL-ACCO-01#0",
+      "top_rrf_chunk_id": "POL-ACCO-01#0",
+      "top_rrf_score": 0.032522
+    },
+    {
+      "query": "Explain the rules and procedure under POL-ACCO-02",
+      "tenant_id": "ACCOUNT",
+      "query_type": "exact_code",
+      "expected_chunk_id": "POL-ACCO-02#0",
+      "top_rrf_chunk_id": "POL-ACCO-02#0",
+      "top_rrf_score": 0.032787
+    },
+    {
+      "query": "Explain the rules and procedure under POL-ACCO-03",
+      "tenant_id": "ACCOUNT",
+      "query_type": "exact_code",
+      "expected_chunk_id": "POL-ACCO-03#0",
+      "top_rrf_chunk_id": "POL-ACCO-03#0",
+      "top_rrf_score": 0.032787
+    },
+    {
+      "query": "Explain the rules and procedure under POL-ACCO-04",
+      "tenant_id": "ACCOUNT",
+      "query_type": "exact_code",
+      "expected_chunk_id": "POL-ACCO-04#0",
+      "top_rrf_chunk_id": "POL-ACCO-04#0",
+      "top_rrf_score": 0.032787
+    },
+    {
+      "query": "Explain the rules and procedure under POL-ACCO-05",
+      "tenant_id": "ACCOUNT",
+      "query_type": "exact_code",
+      "expected_chunk_id": "POL-ACCO-05#0",
+      "top_rrf_chunk_id": "POL-ACCO-05#0",
+      "top_rrf_score": 0.032787
+    },
+    {
+      "query": "Explain the rules and procedure under POL-ACCO-06",
+      "tenant_id": "ACCOUNT",
+      "query_type": "exact_code",
+      "expected_chunk_id": "POL-ACCO-06#0",
+      "top_rrf_chunk_id": "POL-ACCO-06#0",
+      "top_rrf_score": 0.031545
+    }
+  ]
+}

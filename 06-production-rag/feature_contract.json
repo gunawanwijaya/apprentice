@@ -1,0 +1,24 @@
+{
+  "schema_version": "v1.0.0",
+  "retrieval": {
+    "embed_dim": 256,
+    "rrf_k": 60,
+    "bm25_top_k": 20,
+    "vector_top_k": 20,
+    "rerank_top_k": 5,
+    "final_context_chunks": 3,
+    "min_relevance_score": 0.012,
+    "bm25_k1": 1.5,
+    "bm25_b": 0.75
+  },
+  "chunking": {
+    "max_chunk_tokens": 180,
+    "overlap_tokens": 24,
+    "prepend_contextual_header": true
+  },
+  "grounding": {
+    "require_citations": true,
+    "abstain_on_low_score": true,
+    "enforce_tenant_filter": true
+  }
+}

@@ -1,0 +1,26 @@
+[
+  {
+    "strategy": "bm25_only",
+    "recall_at_5": 0.9185,
+    "mrr_at_5": 0.7881,
+    "exact_code_recall_at_5": 1.0,
+    "paraphrase_recall_at_5": 0.8981,
+    "queries_evaluated": 135
+  },
+  {
+    "strategy": "vector_only",
+    "recall_at_5": 0.9852,
+    "mrr_at_5": 0.7898,
+    "exact_code_recall_at_5": 0.963,
+    "paraphrase_recall_at_5": 0.9907,
+    "queries_evaluated": 135
+  },
+  {
+    "strategy": "hybrid_rrf",
+    "recall_at_5": 0.9926,
+    "mrr_at_5": 0.8419,
+    "exact_code_recall_at_5": 1.0,
+    "paraphrase_recall_at_5": 0.9907,
+    "queries_evaluated": 135
+  }
+]
