@@ -1,43 +1,50 @@
 {
   "pythonVersion": "3.12",
-  "typeCheckingMode": "off",
-  "reportMissingImports": "warning",
-  "reportMissingModuleSource": "warning",
+  "typeCheckingMode": "basic",
+  "include": [
+    "01-delivery-sla-breach/ml",
+    "02-classic-nlp/ml",
+    "03-transformer-onnx/ml",
+    "04-multimodal-ai/ml",
+    "05-llm-gateway/ml",
+    "06-production-rag/ml"
+  ],
   "executionEnvironments": [
     {
       "root": "01-delivery-sla-breach/ml",
-      "extraPaths": [
-        "01-delivery-sla-breach/ml",
-        "01-delivery-sla-breach/ml/.venv/lib/python3.12/site-packages"
-      ]
+      "venvPath": "01-delivery-sla-breach/ml",
+      "venv": ".venv",
+      "extraPaths": ["01-delivery-sla-breach/ml"]
     },
     {
       "root": "02-classic-nlp/ml",
-      "extraPaths": [
-        "02-classic-nlp/ml",
-        "02-classic-nlp/ml/.venv/lib/python3.12/site-packages"
-      ]
+      "venvPath": "02-classic-nlp/ml",
+      "venv": ".venv",
+      "extraPaths": ["02-classic-nlp/ml"]
     },
     {
       "root": "03-transformer-onnx/ml",
-      "extraPaths": [
-        "03-transformer-onnx/ml",
-        "03-transformer-onnx/ml/.venv/lib/python3.12/site-packages"
-      ]
+      "venvPath": "03-transformer-onnx/ml",
+      "venv": ".venv",
+      "extraPaths": ["03-transformer-onnx/ml"]
     },
     {
       "root": "04-multimodal-ai/ml",
-      "extraPaths": [
-        "04-multimodal-ai/ml",
-        "04-multimodal-ai/ml/.venv/lib/python3.12/site-packages"
-      ]
+      "venvPath": "04-multimodal-ai/ml",
+      "venv": ".venv",
+      "extraPaths": ["04-multimodal-ai/ml"]
     },
     {
       "root": "05-llm-gateway/ml",
-      "extraPaths": [
-        "05-llm-gateway/ml",
-        "05-llm-gateway/ml/.venv/lib/python3.12/site-packages"
-      ]
+      "venvPath": "05-llm-gateway/ml",
+      "venv": ".venv",
+      "extraPaths": ["05-llm-gateway/ml"]
+    },
+    {
+      "root": "06-production-rag/ml",
+      "venvPath": "06-production-rag/ml",
+      "venv": ".venv",
+      "extraPaths": ["06-production-rag/ml"]
     }
   ]
 }

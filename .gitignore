@@ -12,3 +12,4 @@ catboost_info/
 **/data/
 *.csv
 *.parquet
+.ort/
