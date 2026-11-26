@@ -1,0 +1,20 @@
+[
+  {
+    "model": "eKYC Vision (2D-CNN)",
+    "macro_f1": 0.6436,
+    "cpu_p50_ms": 0.123,
+    "size_mb": 0.092
+  },
+  {
+    "model": "Unboxing Vision (CNN)",
+    "macro_f1": 0.9208,
+    "cpu_p50_ms": 0.116,
+    "size_mb": 0.092
+  },
+  {
+    "model": "Audio VAD (1D-CNN)",
+    "macro_f1": 1.0,
+    "cpu_p50_ms": 0.019,
+    "size_mb": 0.012
+  }
+]
