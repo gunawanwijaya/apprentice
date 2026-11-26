@@ -7,18 +7,21 @@ import pandas as pd
 import onnxruntime as ort
 import onnxmltools
 import kagglehub
-from catboost import CatBoostClassifier
-from lightgbm import LGBMClassifier
-from xgboost import XGBClassifier
+from catboost import CatBoostClassifier, CatBoostRegressor
+from lightgbm import LGBMClassifier, LGBMRegressor
+from xgboost import XGBClassifier, XGBRegressor
 from onnxmltools.convert.common.data_types import FloatTensorType
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.linear_model import LogisticRegression, Ridge
 from sklearn.metrics import (
     average_precision_score,
     f1_score,
+    mean_absolute_error,
     precision_recall_curve,
     precision_score,
+    r2_score,
     recall_score,
+    root_mean_squared_error,
 )
 from sklearn.model_selection import train_test_split
 
@@ -60,16 +63,21 @@ def make_synthetic_logistics_data(n: int = 20_000, seed: int = 42) -> pd.DataFra
     prob = 1.0 / (1.0 + np.exp(-logit))
     is_late = (rng.random(n) < prob).astype(np.int32)
 
-    return pd.DataFrame(
-        {
-            "distance_km": distance_km,
-            "weight_grams": weight_grams,
-            "seller_late_rate": seller_late_rate,
-            "is_weekend": is_weekend,
-            "freight_ratio": freight_ratio,
-            "is_late": is_late,
-        }
-    )
+    delivery_days = np.clip(
+        2.5 + 0.008 * distance_km + 6.0 * np.nan_to_num(seller_late_rate, nan=0.18) + rng.normal(0, 1.5, size=n),
+        1.0,
+        60.0,
+    ).astype(np.float32)
+
+    return pd.DataFrame({
+        "distance_km": distance_km,
+        "weight_grams": weight_grams,
+        "seller_late_rate": seller_late_rate,
+        "is_weekend": is_weekend,
+        "freight_ratio": freight_ratio,
+        "is_late": is_late,
+        "delivery_days": delivery_days,
+    })
 
 
 def resolve_olist_dir() -> Path | None:
@@ -113,6 +121,13 @@ def load_olist_dataset(olist_dir: Path) -> pd.DataFrame:
     ].copy()
     orders["is_late"] = (orders["order_delivered_customer_date"] > orders["order_estimated_delivery_date"]).astype(np.int32)
     orders["is_weekend"] = (orders["order_purchase_timestamp"].dt.day_of_week >= 5).astype(np.float32)
+    orders["delivery_days"] = (
+        (orders["order_delivered_customer_date"] - orders["order_purchase_timestamp"])
+        .dt.total_seconds()
+        .div(86400.0)
+        .clip(lower=1.0, upper=60.0)
+        .astype(np.float32)
+    )
 
     # Aggregate order items to order grain (1 row per order)
     items = items.merge(products, on="product_id", how="left")
@@ -127,7 +142,7 @@ def load_olist_dataset(olist_dir: Path) -> pd.DataFrame:
     ).astype(np.float32)
 
     df = (
-        orders[["order_id", "customer_id", "is_weekend", "is_late"]]
+        orders[["order_id", "customer_id", "is_weekend", "is_late", "delivery_days"]]
         .merge(order_agg, on="order_id", how="inner")
         .merge(customers, on="customer_id", how="left")
         .merge(sellers, on="seller_id", how="left")
@@ -138,7 +153,8 @@ def load_olist_dataset(olist_dir: Path) -> pd.DataFrame:
     df["distance_km"] = haversine_km(df["s_lat"], df["s_lng"], df["c_lat"], df["c_lng"])
     # Drop rows missing non-nullable contract features
     df = df.dropna(subset=["distance_km", "freight_ratio", "is_weekend"]).reset_index(drop=True)
-    return df[["seller_id", "distance_km", "weight_grams", "is_weekend", "freight_ratio", "is_late"]]
+
+    return df[["seller_id", "distance_km", "weight_grams", "is_weekend", "freight_ratio", "is_late", "delivery_days"]]
 
 
 def evaluate(name: str, y_true, probs, threshold: float) -> dict:
@@ -157,6 +173,15 @@ def evaluate(name: str, y_true, probs, threshold: float) -> dict:
         "f1": f1_score(y_true, preds, zero_division=0),
         "peak_f1": float(f1_curve[best_idx]),
         "peak_th": float(ths[best_idx]),
+    }
+
+
+def evaluate_regression(name: str, y_true, preds) -> dict:
+    return {
+        "name": name,
+        "mae": float(mean_absolute_error(y_true, preds)),
+        "rmse": float(root_mean_squared_error(y_true, preds)),
+        "r2": float(r2_score(y_true, preds)),
     }
 
 
@@ -181,79 +206,100 @@ def main():
         test_df = test_df.copy()
         train_df["seller_late_rate"] = train_df["seller_id"].map(valid_sellers).astype(np.float32)
         test_df["seller_late_rate"] = test_df["seller_id"].map(valid_sellers).astype(np.float32)
-
-        X_train, y_train = train_df[feature_cols].astype(np.float32), train_df["is_late"].values
-        X_test, y_test = test_df[feature_cols].astype(np.float32), test_df["is_late"].values
     else:
         print("Using synthetic logistics dataset")
         df = make_synthetic_logistics_data()
-        X_train, X_test, y_train, y_test = train_test_split(
-            df[feature_cols].astype(np.float32),
-            df["is_late"].values,
-            test_size=0.2,
-            stratify=df["is_late"].values,
-            random_state=42,
+        train_df, test_df = train_test_split(
+            df, test_size=0.2, stratify=df["is_late"], random_state=42
         )
 
-    print(f"Train rows: {len(X_train):,} | Test rows: {len(X_test):,} | Late rate: {y_train.mean():.2%}\n")
+    X_train = train_df[feature_cols].astype(np.float32)
+    X_test = test_df[feature_cols].astype(np.float32)
+    y_train = train_df["is_late"].values
+    y_test = test_df["is_late"].values
+    y_reg_train = train_df["delivery_days"].values
+    y_reg_test = test_df["delivery_days"].values
 
-    # 1. Baseline: Logistic Regression (requires manual NaN fill)
-    lr = LogisticRegression(max_iter=500)
-    lr.fit(X_train.fillna(0.0), y_train)
-
-    # 2. Random Forest (parallel bagging; cap depth/leaf size to prevent overfitting on 76k rows)
-    rf_model = RandomForestClassifier(
-        n_estimators=150, max_depth=12, min_samples_leaf=20, n_jobs=-1, random_state=42
+    print(
+        f"Train rows: {len(X_train):,} | Test rows: {len(X_test):,} "
+        f"| Late rate: {y_train.mean():.2%} | Mean ETA: {y_reg_train.mean():.2f}d\n"
     )
-    rf_model.fit(X_train, y_train)
 
-    # 3. CatBoost (symmetric oblivious trees, native NaN handling)
-    cb_model = CatBoostClassifier(
-        iterations=300, depth=6, learning_rate=0.08, random_seed=42, verbose=0, allow_writing_files=False,
-    )
-    cb_model.fit(X_train, y_train)
-
-    # 4. XGBoost (native NaN handling)
-    xgb_model = XGBClassifier(n_estimators=120, max_depth=5, learning_rate=0.08, random_state=42)
-    xgb_model.fit(X_train, y_train)
-
-    # 5. LightGBM (native NaN handling — exported to ONNX)
-    lgb_model = LGBMClassifier(
-        n_estimators=120, num_leaves=31, learning_rate=0.08, random_state=42, verbose=-1
-    )
-    lgb_model.fit(X_train, y_train)
-
-    # Collect, sort descending by F1 at contract threshold, and print leaderboard
-    results = [
-        evaluate("LogisticRegression", y_test, lr.predict_proba(X_test.fillna(0.0))[:, 1], threshold),
-        evaluate("RandomForest", y_test, rf_model.predict_proba(X_test)[:, 1], threshold),
-        evaluate("CatBoost", y_test, cb_model.predict_proba(X_test)[:, 1], threshold),
-        evaluate("XGBoost", y_test, xgb_model.predict_proba(X_test)[:, 1], threshold),
-        evaluate("LightGBM", y_test, lgb_model.predict_proba(X_test)[:, 1], threshold),
+    # --- 1. Classification Benchmark (is_late) ---
+    clf_candidates = [
+        ("LogisticRegression", LogisticRegression(max_iter=500), True),
+        ("RandomForest", RandomForestClassifier(n_estimators=150, max_depth=12, min_samples_leaf=20, n_jobs=-1, random_state=42), False),
+        ("CatBoost", CatBoostClassifier(iterations=300, depth=6, learning_rate=0.08, random_seed=42, verbose=0, allow_writing_files=False), False),
+        ("XGBoost", XGBClassifier(n_estimators=120, max_depth=5, learning_rate=0.08, random_state=42), False),
+        ("LightGBM", LGBMClassifier(n_estimators=120, num_leaves=31, learning_rate=0.08, random_state=42, verbose=-1), False),
     ]
-    results.sort(key=lambda r: r["f1"], reverse=True)
+
+    clf_results = []
+    trained_clfs = {}
+    for name, model, needs_fill in clf_candidates:
+        model.fit(X_train.fillna(0.0) if needs_fill else X_train, y_train)
+        probs = model.predict_proba(X_test.fillna(0.0) if needs_fill else X_test)[:, 1]
+        trained_clfs[name] = model
+        clf_results.append(evaluate(name, y_test, probs, threshold))
+
+    clf_results.sort(key=lambda r: r["f1"], reverse=True)
 
     print(f"{'Model':18s} | {'PR-AUC':>6s} | {'Prec':>6s} | {'Recall':>6s} | {'F1@' + str(threshold):>7s} | {'Peak F1 (@th)':>15s}")
     print("-" * 74)
-    for r in results:
+    for r in clf_results:
         print(
             f"{r['name']:18s} | {r['pr_auc']:6.4f} | {r['precision']:6.4f} | {r['recall']:6.4f} "
             f"| {r['f1']:7.4f} | {r['peak_f1']:.4f} (@{r['peak_th']:.3f})"
         )
 
-    # Export LightGBM -> ONNX with flat probability tensor (zipmap=False)
+    # --- 2. Regression Benchmark (delivery_days ETA) ---
+    reg_candidates = [
+        ("Ridge", Ridge(alpha=1.0), True),
+        ("RandomForestReg", RandomForestRegressor(n_estimators=150, max_depth=12, min_samples_leaf=20, n_jobs=-1, random_state=42), False),
+        ("CatBoostReg", CatBoostRegressor(iterations=300, depth=6, learning_rate=0.08, random_seed=42, verbose=0, allow_writing_files=False), False),
+        ("XGBRegressor", XGBRegressor(n_estimators=120, max_depth=5, learning_rate=0.08, random_state=42), False),
+        ("LGBMRegressor", LGBMRegressor(n_estimators=120, num_leaves=31, learning_rate=0.08, random_state=42, verbose=-1), False),
+    ]
+
+    reg_results = []
+    trained_regs = {}
+    for name, model, needs_fill in reg_candidates:
+        model.fit(X_train.fillna(0.0) if needs_fill else X_train, y_reg_train)
+        preds = model.predict(X_test.fillna(0.0) if needs_fill else X_test)
+        trained_regs[name] = model
+        reg_results.append(evaluate_regression(name, y_reg_test, preds))
+
+    # Sort ascending by MAE (lower error in days is better)
+    reg_results.sort(key=lambda r: r["mae"])
+
+    print(f"\n{'Regressor':18s} | {'MAE (days)':>10s} | {'RMSE (days)':>11s} | {'R2':>7s}")
+    print("-" * 56)
+    for r in reg_results:
+        print(f"{r['name']:18s} | {r['mae']:10.4f} | {r['rmse']:11.4f} | {r['r2']:7.4f}")
+
+    # --- 3. Export LightGBM Classifier + Regressor -> ONNX ---
     initial_type = [("input", FloatTensorType([None, len(feature_cols)]))]
-    onnx_model = onnxmltools.convert_lightgbm(
-        lgb_model,
+
+    clf_onnx = onnxmltools.convert_lightgbm(
+        trained_clfs["LightGBM"],
         initial_types=initial_type,
         target_opset=15,
         zipmap=False,
     )
     model_path = ARTIFACTS_DIR / "model.onnx"
-    onnxmltools.utils.save_model(onnx_model, str(model_path))
+    onnxmltools.utils.save_model(clf_onnx, str(model_path))
 
-    # Emit 100 golden fixtures for 1:1 Go <-> Python parity testing
-    sess = ort.InferenceSession(str(model_path), providers=["CPUExecutionProvider"])
+    eta_onnx = onnxmltools.convert_lightgbm(
+        trained_regs["LGBMRegressor"],
+        initial_types=initial_type,
+        target_opset=15,
+    )
+    eta_path = ARTIFACTS_DIR / "eta_model.onnx"
+    onnxmltools.utils.save_model(eta_onnx, str(eta_path))
+
+    # --- 4. Emit 100 Dual-Output Golden Fixtures (Classifier + Regressor) ---
+    clf_sess = ort.InferenceSession(str(model_path), providers=["CPUExecutionProvider"])
+    eta_sess = ort.InferenceSession(str(eta_path), providers=["CPUExecutionProvider"])
     sample_df = X_test.iloc[:100].reset_index(drop=True)
 
     fixtures = []
@@ -266,13 +312,16 @@ def main():
             [[np.nan if raw_input[c] is None else raw_input[c] for c in feature_cols]],
             dtype=np.float32,
         )
-        _, row_probs = sess.run(None, {"input": vec})
+        _, row_probs = clf_sess.run(None, {"input": vec})
         late_prob = float(row_probs[0][1])
+        eta_days = float(eta_sess.run(None, {"input": vec})[0][0][0])
+
         fixtures.append(
             {
                 "input": raw_input,
                 "expected_prob": late_prob,
                 "expected_label": int(late_prob >= threshold),
+                "expected_eta_days": round(eta_days, 5),
             }
         )
 
@@ -283,7 +332,7 @@ def main():
         "cases": fixtures,
     }
     (ARTIFACTS_DIR / "golden_fixtures.json").write_text(json.dumps(out, indent=2))
-    print(f"\nExported {model_path} and {len(fixtures)} golden fixtures (schema_hash={schema_hash})")
+    print(f"\nExported {model_path.name}, {eta_path.name}, and {len(fixtures)} golden fixtures (schema_hash={schema_hash})")
 
 if __name__ == "__main__":
     main()

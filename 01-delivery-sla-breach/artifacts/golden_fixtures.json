@@ -1,5 +1,5 @@
 {
-  "schema_version": "v1.0.0",
+  "schema_version": "v1.1.0",
   "schema_hash": "fe66b8873d6c",
   "threshold": 0.12,
   "cases": [
@@ -12,7 +12,8 @@
         "freight_ratio": 0.116007
       },
       "expected_prob": 0.022483348846435547,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 10.25191
     },
     {
       "input": {
@@ -23,7 +24,8 @@
         "freight_ratio": 0.192929
       },
       "expected_prob": 0.0377124547958374,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 14.16189
     },
     {
       "input": {
@@ -34,7 +36,8 @@
         "freight_ratio": 0.557457
       },
       "expected_prob": 0.07518422603607178,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 14.03839
     },
     {
       "input": {
@@ -45,7 +48,8 @@
         "freight_ratio": 0.118324
       },
       "expected_prob": 0.023123204708099365,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 9.60824
     },
     {
       "input": {
@@ -56,7 +60,8 @@
         "freight_ratio": 0.055975
       },
       "expected_prob": 0.09233719110488892,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 5.98497
     },
     {
       "input": {
@@ -67,7 +72,8 @@
         "freight_ratio": 0.14022
       },
       "expected_prob": 0.06784069538116455,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 7.68654
     },
     {
       "input": {
@@ -78,7 +84,8 @@
         "freight_ratio": 0.431429
       },
       "expected_prob": 0.0482366681098938,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 10.59936
     },
     {
       "input": {
@@ -89,7 +96,8 @@
         "freight_ratio": 0.082064
       },
       "expected_prob": 0.012062013149261475,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 14.015
     },
     {
       "input": {
@@ -100,7 +108,8 @@
         "freight_ratio": 0.106751
       },
       "expected_prob": 0.011077284812927246,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 9.97437
     },
     {
       "input": {
@@ -111,7 +120,8 @@
         "freight_ratio": 0.303026
       },
       "expected_prob": 0.07544213533401489,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 10.89139
     },
     {
       "input": {
@@ -122,7 +132,8 @@
         "freight_ratio": 0.283589
       },
       "expected_prob": 0.21168243885040283,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 23.10555
     },
     {
       "input": {
@@ -133,7 +144,8 @@
         "freight_ratio": 0.072922
       },
       "expected_prob": 0.08642810583114624,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 14.76021
     },
     {
       "input": {
@@ -144,7 +156,8 @@
         "freight_ratio": 0.16273
       },
       "expected_prob": 0.13335245847702026,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 15.91336
     },
     {
       "input": {
@@ -155,7 +168,8 @@
         "freight_ratio": 0.072171
       },
       "expected_prob": 0.007612466812133789,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 9.83587
     },
     {
       "input": {
@@ -166,7 +180,8 @@
         "freight_ratio": 0.103043
       },
       "expected_prob": 0.07154154777526855,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 10.05463
     },
     {
       "input": {
@@ -177,7 +192,8 @@
         "freight_ratio": 0.0
       },
       "expected_prob": 0.02174919843673706,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 13.49175
     },
     {
       "input": {
@@ -188,7 +204,8 @@
         "freight_ratio": 0.138556
       },
       "expected_prob": 0.1310105323791504,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 18.55022
     },
     {
       "input": {
@@ -199,7 +216,8 @@
         "freight_ratio": 0.050924
       },
       "expected_prob": 0.17629873752593994,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 13.82087
     },
     {
       "input": {
@@ -210,7 +228,8 @@
         "freight_ratio": 0.422771
       },
       "expected_prob": 0.06464141607284546,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.17984
     },
     {
       "input": {
@@ -221,7 +240,8 @@
         "freight_ratio": 0.028
       },
       "expected_prob": 0.12359774112701416,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 18.81745
     },
     {
       "input": {
@@ -232,7 +252,8 @@
         "freight_ratio": 0.119612
       },
       "expected_prob": 0.00012111663818359375,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.11198
     },
     {
       "input": {
@@ -243,7 +264,8 @@
         "freight_ratio": 0.300912
       },
       "expected_prob": 0.0546722412109375,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 8.33411
     },
     {
       "input": {
@@ -254,7 +276,8 @@
         "freight_ratio": 0.441341
       },
       "expected_prob": 0.06706905364990234,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.34939
     },
     {
       "input": {
@@ -265,7 +288,8 @@
         "freight_ratio": 0.13507
       },
       "expected_prob": 0.032060861587524414,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 8.38364
     },
     {
       "input": {
@@ -276,7 +300,8 @@
         "freight_ratio": 0.182705
       },
       "expected_prob": 0.12192261219024658,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 12.94013
     },
     {
       "input": {
@@ -287,7 +312,8 @@
         "freight_ratio": 0.0
       },
       "expected_prob": 0.04541516304016113,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 13.72829
     },
     {
       "input": {
@@ -298,7 +324,8 @@
         "freight_ratio": 0.18016
       },
       "expected_prob": 0.08714538812637329,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 9.1998
     },
     {
       "input": {
@@ -309,7 +336,8 @@
         "freight_ratio": 0.184807
       },
       "expected_prob": 0.07493811845779419,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 14.6699
     },
     {
       "input": {
@@ -320,7 +348,8 @@
         "freight_ratio": 0.301597
       },
       "expected_prob": 0.10265964269638062,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.57691
     },
     {
       "input": {
@@ -331,7 +360,8 @@
         "freight_ratio": 0.127661
       },
       "expected_prob": 0.1487184762954712,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 17.11009
     },
     {
       "input": {
@@ -342,7 +372,8 @@
         "freight_ratio": 0.237672
       },
       "expected_prob": 0.05074054002761841,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 7.88682
     },
     {
       "input": {
@@ -353,7 +384,8 @@
         "freight_ratio": 0.317852
       },
       "expected_prob": 0.06229525804519653,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 13.35349
     },
     {
       "input": {
@@ -364,7 +396,8 @@
         "freight_ratio": 0.531501
       },
       "expected_prob": 0.24032443761825562,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 22.70994
     },
     {
       "input": {
@@ -375,7 +408,8 @@
         "freight_ratio": 0.525217
       },
       "expected_prob": 0.12062257528305054,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 16.42852
     },
     {
       "input": {
@@ -386,7 +420,8 @@
         "freight_ratio": 0.063748
       },
       "expected_prob": 0.01885145902633667,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 10.95959
     },
     {
       "input": {
@@ -397,7 +432,8 @@
         "freight_ratio": 0.188531
       },
       "expected_prob": 0.14411044120788574,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 21.29075
     },
     {
       "input": {
@@ -408,7 +444,8 @@
         "freight_ratio": 0.143539
       },
       "expected_prob": 0.06112247705459595,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 5.83703
     },
     {
       "input": {
@@ -419,7 +456,8 @@
         "freight_ratio": 0.0373
       },
       "expected_prob": 8.463859558105469e-05,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 9.34025
     },
     {
       "input": {
@@ -430,7 +468,8 @@
         "freight_ratio": 0.159971
       },
       "expected_prob": 0.00010859966278076172,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.24978
     },
     {
       "input": {
@@ -441,7 +480,8 @@
         "freight_ratio": 0.189763
       },
       "expected_prob": 0.01606452465057373,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 9.92856
     },
     {
       "input": {
@@ -452,7 +492,8 @@
         "freight_ratio": 0.183853
       },
       "expected_prob": 0.05204570293426514,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.43193
     },
     {
       "input": {
@@ -463,7 +504,8 @@
         "freight_ratio": 0.086849
       },
       "expected_prob": 0.05519992113113403,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 6.50446
     },
     {
       "input": {
@@ -474,7 +516,8 @@
         "freight_ratio": 0.161338
       },
       "expected_prob": 0.054436326026916504,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 7.29419
     },
     {
       "input": {
@@ -485,7 +528,8 @@
         "freight_ratio": 0.08046
       },
       "expected_prob": 0.10039955377578735,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 15.99983
     },
     {
       "input": {
@@ -496,7 +540,8 @@
         "freight_ratio": 0.358892
       },
       "expected_prob": 0.13451069593429565,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 21.31268
     },
     {
       "input": {
@@ -507,7 +552,8 @@
         "freight_ratio": 0.230382
       },
       "expected_prob": 0.0305902361869812,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 4.9712
     },
     {
       "input": {
@@ -518,7 +564,8 @@
         "freight_ratio": 0.269905
       },
       "expected_prob": 0.030535340309143066,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 6.59225
     },
     {
       "input": {
@@ -529,7 +576,8 @@
         "freight_ratio": 0.251599
       },
       "expected_prob": 0.1359248161315918,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 15.7235
     },
     {
       "input": {
@@ -540,7 +588,8 @@
         "freight_ratio": 0.073916
       },
       "expected_prob": 0.07843822240829468,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.13459
     },
     {
       "input": {
@@ -551,7 +600,8 @@
         "freight_ratio": 0.213389
       },
       "expected_prob": 0.1338009238243103,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 16.09459
     },
     {
       "input": {
@@ -562,7 +612,8 @@
         "freight_ratio": 0.453257
       },
       "expected_prob": 0.029606878757476807,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.70994
     },
     {
       "input": {
@@ -573,7 +624,8 @@
         "freight_ratio": 0.539286
       },
       "expected_prob": 0.06505042314529419,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.31728
     },
     {
       "input": {
@@ -584,7 +636,8 @@
         "freight_ratio": 0.035148
       },
       "expected_prob": 0.04218333959579468,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 5.28899
     },
     {
       "input": {
@@ -595,7 +648,8 @@
         "freight_ratio": 0.084672
       },
       "expected_prob": 0.03110504150390625,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 15.58404
     },
     {
       "input": {
@@ -606,7 +660,8 @@
         "freight_ratio": 0.116298
       },
       "expected_prob": 0.04103541374206543,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 6.25093
     },
     {
       "input": {
@@ -617,7 +672,8 @@
         "freight_ratio": 0.050774
       },
       "expected_prob": 0.13387012481689453,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 17.55825
     },
     {
       "input": {
@@ -628,7 +684,8 @@
         "freight_ratio": 0.133172
       },
       "expected_prob": 0.05758702754974365,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.53032
     },
     {
       "input": {
@@ -639,7 +696,8 @@
         "freight_ratio": 0.122971
       },
       "expected_prob": 0.05989432334899902,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 8.56132
     },
     {
       "input": {
@@ -650,7 +708,8 @@
         "freight_ratio": 0.325997
       },
       "expected_prob": 0.15083354711532593,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 15.26818
     },
     {
       "input": {
@@ -661,7 +720,8 @@
         "freight_ratio": 0.063043
       },
       "expected_prob": 0.09732604026794434,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.42446
     },
     {
       "input": {
@@ -672,7 +732,8 @@
         "freight_ratio": 0.218854
       },
       "expected_prob": 0.23098260164260864,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 17.93841
     },
     {
       "input": {
@@ -683,7 +744,8 @@
         "freight_ratio": 0.214312
       },
       "expected_prob": 0.1312461495399475,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 15.3793
     },
     {
       "input": {
@@ -694,7 +756,8 @@
         "freight_ratio": 0.07773
       },
       "expected_prob": 0.05345076322555542,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 5.83703
     },
     {
       "input": {
@@ -705,7 +768,8 @@
         "freight_ratio": 0.194742
       },
       "expected_prob": 0.07240396738052368,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 20.17391
     },
     {
       "input": {
@@ -716,7 +780,8 @@
         "freight_ratio": 0.354001
       },
       "expected_prob": 9.66787338256836e-05,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 18.08475
     },
     {
       "input": {
@@ -727,7 +792,8 @@
         "freight_ratio": 0.191073
       },
       "expected_prob": 0.05673348903656006,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.02885
     },
     {
       "input": {
@@ -738,7 +804,8 @@
         "freight_ratio": 0.12437
       },
       "expected_prob": 9.572505950927734e-05,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 9.66761
     },
     {
       "input": {
@@ -749,7 +816,8 @@
         "freight_ratio": 0.104729
       },
       "expected_prob": 0.1510487198829651,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 19.55234
     },
     {
       "input": {
@@ -760,7 +828,8 @@
         "freight_ratio": 0.300234
       },
       "expected_prob": 7.975101470947266e-05,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 10.9603
     },
     {
       "input": {
@@ -771,7 +840,8 @@
         "freight_ratio": 0.308673
       },
       "expected_prob": 0.14855951070785522,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 16.88235
     },
     {
       "input": {
@@ -782,7 +852,8 @@
         "freight_ratio": 0.065774
       },
       "expected_prob": 0.04122084379196167,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 10.71111
     },
     {
       "input": {
@@ -793,7 +864,8 @@
         "freight_ratio": 0.233272
       },
       "expected_prob": 0.05016946792602539,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 6.89733
     },
     {
       "input": {
@@ -804,7 +876,8 @@
         "freight_ratio": 0.197772
       },
       "expected_prob": 0.05075877904891968,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.50037
     },
     {
       "input": {
@@ -815,7 +888,8 @@
         "freight_ratio": 0.134918
       },
       "expected_prob": 0.03888225555419922,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 10.2676
     },
     {
       "input": {
@@ -826,7 +900,8 @@
         "freight_ratio": 0.154111
       },
       "expected_prob": 9.85860824584961e-05,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 20.13066
     },
     {
       "input": {
@@ -837,7 +912,8 @@
         "freight_ratio": 0.215494
       },
       "expected_prob": 0.023939311504364014,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 6.37028
     },
     {
       "input": {
@@ -848,7 +924,8 @@
         "freight_ratio": 0.509808
       },
       "expected_prob": 0.24484199285507202,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 23.31759
     },
     {
       "input": {
@@ -859,7 +936,8 @@
         "freight_ratio": 0.157565
       },
       "expected_prob": 0.07770001888275146,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 14.12746
     },
     {
       "input": {
@@ -870,7 +948,8 @@
         "freight_ratio": 0.070223
       },
       "expected_prob": 0.10335606336593628,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 14.64558
     },
     {
       "input": {
@@ -881,7 +960,8 @@
         "freight_ratio": 0.371227
       },
       "expected_prob": 0.18525254726409912,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 21.43526
     },
     {
       "input": {
@@ -892,7 +972,8 @@
         "freight_ratio": 0.219854
       },
       "expected_prob": 0.15401184558868408,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 21.75644
     },
     {
       "input": {
@@ -903,7 +984,8 @@
         "freight_ratio": 0.033227
       },
       "expected_prob": 0.13002091646194458,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 8.74392
     },
     {
       "input": {
@@ -914,7 +996,8 @@
         "freight_ratio": 0.089625
       },
       "expected_prob": 0.10120809078216553,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.81234
     },
     {
       "input": {
@@ -925,7 +1008,8 @@
         "freight_ratio": 0.077367
       },
       "expected_prob": 0.09156805276870728,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.3834
     },
     {
       "input": {
@@ -936,7 +1020,8 @@
         "freight_ratio": 0.175614
       },
       "expected_prob": 0.13210433721542358,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 20.31046
     },
     {
       "input": {
@@ -947,7 +1032,8 @@
         "freight_ratio": 0.379089
       },
       "expected_prob": 0.0995745062828064,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.51844
     },
     {
       "input": {
@@ -958,7 +1044,8 @@
         "freight_ratio": 0.073766
       },
       "expected_prob": 8.356571197509766e-05,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 5.76757
     },
     {
       "input": {
@@ -969,7 +1056,8 @@
         "freight_ratio": 0.18246
       },
       "expected_prob": 0.0492435097694397,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.61985
     },
     {
       "input": {
@@ -980,7 +1068,8 @@
         "freight_ratio": 0.143365
       },
       "expected_prob": 0.04926937818527222,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.56094
     },
     {
       "input": {
@@ -991,7 +1080,8 @@
         "freight_ratio": 0.40762
       },
       "expected_prob": 0.19376742839813232,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 21.45305
     },
     {
       "input": {
@@ -1002,7 +1092,8 @@
         "freight_ratio": 0.067656
       },
       "expected_prob": 0.08878833055496216,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 15.17471
     },
     {
       "input": {
@@ -1013,7 +1104,8 @@
         "freight_ratio": 0.344905
       },
       "expected_prob": 0.07087969779968262,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.78968
     },
     {
       "input": {
@@ -1024,7 +1116,8 @@
         "freight_ratio": 0.096368
       },
       "expected_prob": 0.04517316818237305,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.3013
     },
     {
       "input": {
@@ -1035,7 +1128,8 @@
         "freight_ratio": 0.20624
       },
       "expected_prob": 0.07468467950820923,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 15.74409
     },
     {
       "input": {
@@ -1046,7 +1140,8 @@
         "freight_ratio": 0.293286
       },
       "expected_prob": 0.032592058181762695,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 10.74498
     },
     {
       "input": {
@@ -1057,7 +1152,8 @@
         "freight_ratio": 0.441309
       },
       "expected_prob": 0.030552268028259277,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.65469
     },
     {
       "input": {
@@ -1068,7 +1164,8 @@
         "freight_ratio": 0.295542
       },
       "expected_prob": 0.09219640493392944,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 12.29017
     },
     {
       "input": {
@@ -1079,7 +1176,8 @@
         "freight_ratio": 0.316435
       },
       "expected_prob": 0.04054051637649536,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 11.04431
     },
     {
       "input": {
@@ -1090,7 +1188,8 @@
         "freight_ratio": 0.213533
       },
       "expected_prob": 0.1732853651046753,
-      "expected_label": 1
+      "expected_label": 1,
+      "expected_eta_days": 20.86842
     },
     {
       "input": {
@@ -1101,7 +1200,8 @@
         "freight_ratio": 0.188791
       },
       "expected_prob": 0.06021767854690552,
-      "expected_label": 0
+      "expected_label": 0,
+      "expected_eta_days": 15.32253
     }
   ]
 }
