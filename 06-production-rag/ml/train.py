@@ -254,10 +254,10 @@ def main():
 
     bm25 = BM25Index(corpus, k1=ret["bm25_k1"], b=ret["bm25_b"])
     vec = VectorIndex(corpus, dim=ret["embed_dim"])
-    eval_summary = evaluate(bm25, vec, eval_queries, rrf_k=ret["rrf_k"], top_k=ret["rerank_top_k"])
+    benchmark_summary = evaluate(bm25, vec, eval_queries, rrf_k=ret["rrf_k"], top_k=ret["rerank_top_k"])
 
     print(f"\nProduction RAG Retrieval Audit | Schema: {contract['schema_version']} (hash={schema_hash})\n")
-    for row in eval_summary:
+    for row in benchmark_summary:
         print(
             f"{row['strategy']:<14} | Recall@5: {row['recall_at_5']:.4f} | MRR@5: {row['mrr_at_5']:.4f} "
             f"| Exact-Code R@5: {row['exact_code_recall_at_5']:.4f} | Paraphrase R@5: {row['paraphrase_recall_at_5']:.4f}"
@@ -268,7 +268,7 @@ def main():
         for doc in corpus:
             f.write(json.dumps(doc) + "\n")
 
-    (ARTIFACTS_DIR / "eval_summary.json").write_text(json.dumps(eval_summary, indent=2))
+    (ARTIFACTS_DIR / "benchmark_summary.json").write_text(json.dumps(benchmark_summary, indent=2))
 
     # Export 12 deterministic golden retrieval fixtures for Python <-> Go parity tests
     golden_cases = []
@@ -293,7 +293,7 @@ def main():
         "golden_cases": golden_cases,
     }
     (ARTIFACTS_DIR / "golden_fixtures.json").write_text(json.dumps(golden, indent=2))
-    print(f"\nExported corpus.jsonl ({len(corpus)} chunks), eval_summary.json, and {len(golden_cases)} golden fixtures")
+    print(f"\nExported corpus.jsonl ({len(corpus)} chunks), benchmark_summary.json, and {len(golden_cases)} golden fixtures")
 
 
 if __name__ == "__main__":

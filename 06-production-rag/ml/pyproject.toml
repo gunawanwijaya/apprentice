@@ -1,24 +1,16 @@
 [project]
-name = "ml"
+name = "06-production-rag-ml"
 version = "0.1.0"
-description = "Add your description here"
-authors = [
-    { name = "Gunawan Wijaya", email = "gunawan@wijaya.cc" }
-]
+description = "Offline hybrid retrieval benchmark and artifact exporter for 06-production-rag"
 requires-python = ">=3.12"
 dependencies = [
+    "ipykernel>=6.29.5",
     "jupyter>=1.1.1",
-    "kagglehub>=1.0.3",
-    "matplotlib>=3.11.2",
-    "nbconvert>=7.17.2",
-    "numpy>=2.5.5",
-    "pandas>=3.1.1",
-    "scikit-learn>=1.9.1",
+    "kagglehub>=0.3.4",
+    "matplotlib>=3.9.2",
+    "nbconvert>=7.16.4",
+    "pandas>=2.2.3",
 ]
 
-[project.scripts]
-ml = "ml:main"
-
-[build-system]
-requires = ["uv_build>=0.13.10,<0.14.0"]
-build-backend = "uv_build"
+[tool.uv]
+package = false

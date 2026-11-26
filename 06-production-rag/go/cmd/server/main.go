@@ -9,16 +9,15 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"strings"
 	"syscall"
 	"time"
 
+	"github.com/gunawanwijaya/apprentice/06-production-rag/go/internal/contract"
 	"github.com/gunawanwijaya/apprentice/06-production-rag/go/internal/rag"
 	"github.com/gunawanwijaya/apprentice/06-production-rag/go/internal/store"
-	"github.com/gunawanwijaya/apprentice/06-production-rag/go/internal/telemetry"
-	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/attribute"
-	"go.opentelemetry.io/otel/metric"
+	"github.com/gunawanwijaya/apprentice/infra/telemetry"
 )
 
 type queryReq struct {
@@ -36,13 +35,6 @@ type queryResp struct {
 	TopChunks        []rag.ScoredChunk `json:"top_chunks"`
 }
 
-func envOr(k, fallback string) string {
-	if v := os.Getenv(k); v != "" {
-		return v
-	}
-	return fallback
-}
-
 func main() {
 	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer stop()
@@ -54,21 +46,27 @@ func main() {
 		defer shutdownOTel(context.Background())
 	}
 
-	contract, hash, err := rag.LoadContract("../feature_contract.json")
+	root := resolveModuleRoot()
+	c, hash, err := rag.LoadContract(filepath.Join(root, "feature_contract.json"))
 	if err != nil {
 		slog.Error("load contract", "err", err)
 		os.Exit(1)
 	}
-	docs, err := rag.LoadCorpusJSONL("../artifacts/corpus.jsonl")
+	if hash != contract.SchemaHash {
+		slog.Error("contract hash mismatch with generated code", "runtime", hash, "codegen", contract.SchemaHash)
+		os.Exit(1)
+	}
+
+	docs, err := rag.LoadCorpusJSONL(filepath.Join(root, "artifacts", "corpus.jsonl"))
 	if err != nil {
 		slog.Error("load corpus", "err", err)
 		os.Exit(1)
 	}
-	engine := rag.NewEngine(contract, hash, docs)
+	engine := rag.NewEngine(c, hash, docs)
 
 	var pgStore *store.PGStore
 	if dsn := os.Getenv("DATABASE_URL"); dsn != "" {
-		pg, err := store.NewPGStore(ctx, dsn, contract.Retrieval.EmbedDim)
+		pg, err := store.NewPGStore(ctx, dsn, c.Retrieval.EmbedDim)
 		if err != nil {
 			slog.Warn("pgvector disabled", "err", err)
 		} else {
@@ -94,67 +92,53 @@ func main() {
 		}
 	}
 
-	meter := otel.Meter("06-production-rag")
-	reqDur, _ := meter.Float64Histogram(
-		"http.server.request.duration",
-		metric.WithUnit("s"),
-		metric.WithDescription("HTTP server request duration in seconds"),
-	)
-	tracer := otel.Tracer("06-production-rag/http")
 	gatewayURL := os.Getenv("LLM_GATEWAY_URL")
-
-	instrument := func(route string, next http.HandlerFunc) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
-			start := time.Now()
-			rCtx, span := tracer.Start(r.Context(), r.Method+" "+route)
-			defer span.End()
-			span.SetAttributes(attribute.String("http.route", route))
-			next(w, r.WithContext(rCtx))
-			reqDur.Record(rCtx, time.Since(start).Seconds(),
-				metric.WithAttributes(attribute.String("http.route", route)))
-		}
-	}
-
 	mux := http.NewServeMux()
-	mux.HandleFunc("GET /healthz", instrument("/healthz", func(w http.ResponseWriter, r *http.Request) {
+
+	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, map[string]any{
 			"status":      "ok",
 			"schema_hash": engine.SchemaHash,
 			"corpus_size": engine.CorpusSize(),
 		})
-	}))
+	})
 
-	mux.HandleFunc("POST /v1/rag/ingest", instrument("/v1/rag/ingest", func(w http.ResponseWriter, r *http.Request) {
-		var c rag.Chunk
-		if err := json.NewDecoder(r.Body).Decode(&c); err != nil {
+	mux.HandleFunc("POST /v1/rag/ingest", func(w http.ResponseWriter, r *http.Request) {
+		var ch rag.Chunk
+		if err := json.NewDecoder(r.Body).Decode(&ch); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 			return
 		}
-		if c.ChunkID == "" || c.TenantID == "" || c.Content == "" {
+		if ch.ChunkID == "" || ch.TenantID == "" || ch.Content == "" {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "chunk_id, tenant_id, and content are required"})
 			return
 		}
-		engine.UpsertChunk(c)
+		engine.UpsertChunk(ch)
 		if pgStore != nil {
-			if err := pgStore.UpsertChunk(r.Context(), c); err != nil {
-				slog.Warn("pgvector upsert failed", "chunk_id", c.ChunkID, "err", err)
+			if err := pgStore.UpsertChunk(r.Context(), ch); err != nil {
+				slog.WarnContext(r.Context(), "pgvector upsert failed", "chunk_id", ch.ChunkID, "err", err)
 			}
 		}
 		if s3Store != nil {
-			if err := s3Store.ArchiveChunk(r.Context(), c); err != nil {
-				slog.Warn("rustfs archive failed", "chunk_id", c.ChunkID, "err", err)
+			if err := s3Store.ArchiveChunk(r.Context(), ch); err != nil {
+				slog.WarnContext(r.Context(), "rustfs archive failed", "chunk_id", ch.ChunkID, "err", err)
 			}
 		}
-		writeJSON(w, http.StatusCreated, map[string]any{"status": "ingested", "chunk_id": c.ChunkID, "corpus_size": engine.CorpusSize()})
-	}))
+		writeJSON(w, http.StatusCreated, map[string]any{
+			"status":      "ingested",
+			"chunk_id":    ch.ChunkID,
+			"corpus_size": engine.CorpusSize(),
+		})
+	})
 
-	mux.HandleFunc("POST /v1/rag/query", instrument("/v1/rag/query", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc("POST /v1/rag/query", func(w http.ResponseWriter, r *http.Request) {
 		var req queryReq
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 			return
 		}
-		hits, err := engine.Retrieve(r.Context(), req.Query, strings.ToUpper(strings.TrimSpace(req.TenantID)))
+		tenant := strings.ToUpper(strings.TrimSpace(req.TenantID))
+		hits, err := engine.Retrieve(r.Context(), req.Query, tenant)
 		if err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 			return
@@ -165,7 +149,7 @@ func main() {
 		}
 		if engine.ShouldAbstain(hits) {
 			writeJSON(w, http.StatusOK, queryResp{
-				TenantID:   req.TenantID,
+				TenantID:   tenant,
 				SchemaHash: engine.SchemaHash,
 				Abstained:  true,
 				Answer:     "I cannot answer this reliably from the authorized policy documents for this tenant.",
@@ -177,7 +161,7 @@ func main() {
 		answer := synthesizeAnswer(r.Context(), gatewayURL, req.Query, hits)
 		verified, cited, _ := rag.VerifyCitations(answer, hits)
 		writeJSON(w, http.StatusOK, queryResp{
-			TenantID:         strings.ToUpper(strings.TrimSpace(req.TenantID)),
+			TenantID:         tenant,
 			SchemaHash:       engine.SchemaHash,
 			Abstained:        false,
 			Answer:           answer,
@@ -185,13 +169,14 @@ func main() {
 			CitationVerified: verified,
 			TopChunks:        hits,
 		})
-	}))
+	})
 
-	addr := os.Getenv("RAG_ADDR")
-	if addr == "" {
-		addr = ":8086"
+	addr := envOr("RAG_ADDR", ":8086")
+	srv := &http.Server{
+		Addr:              addr,
+		Handler:           telemetry.Middleware("06-production-rag", mux),
+		ReadHeaderTimeout: 5 * time.Second,
 	}
-	srv := &http.Server{Addr: addr, Handler: mux, ReadHeaderTimeout: 5 * time.Second}
 	go func() {
 		slog.Info("06-production-rag listening", "addr", addr, "schema_hash", engine.SchemaHash, "chunks", engine.CorpusSize())
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
@@ -203,6 +188,20 @@ func main() {
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_ = srv.Shutdown(shutdownCtx)
+}
+
+func resolveModuleRoot() string {
+	if _, err := os.Stat("feature_contract.json"); err == nil {
+		return "."
+	}
+	return ".."
+}
+
+func envOr(k, fallback string) string {
+	if v := os.Getenv(k); v != "" {
+		return v
+	}
+	return fallback
 }
 
 func synthesizeAnswer(ctx context.Context, gatewayURL, query string, hits []rag.ScoredChunk) string {
@@ -233,7 +232,6 @@ func synthesizeAnswer(ctx context.Context, gatewayURL, query string, hits []rag.
 			}
 		}
 	}
-	// Deterministic grounded fallback when 05-llm-gateway is offline
 	top := hits[0].Chunk
 	return fmt.Sprintf("Based on policy %s [%s]: %s", top.PolicyCode, top.ChunkID, top.Content)
 }

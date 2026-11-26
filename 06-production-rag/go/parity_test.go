@@ -1,4 +1,4 @@
-package rag
+package parity_test
 
 import (
 	"context"
@@ -7,6 +7,9 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/gunawanwijaya/apprentice/06-production-rag/go/internal/contract"
+	"github.com/gunawanwijaya/apprentice/06-production-rag/go/internal/rag"
 )
 
 type goldenFile struct {
@@ -23,14 +26,14 @@ type goldenFile struct {
 	} `json:"golden_cases"`
 }
 
-func loadTestEngine(t *testing.T) (*Engine, goldenFile) {
+func loadTestEngine(t *testing.T) (*rag.Engine, goldenFile) {
 	t.Helper()
-	root := filepath.Join("..", "..", "..")
-	c, hash, err := LoadContract(filepath.Join(root, "feature_contract.json"))
+	root := ".."
+	c, hash, err := rag.LoadContract(filepath.Join(root, "feature_contract.json"))
 	if err != nil {
 		t.Fatalf("load contract: %v", err)
 	}
-	docs, err := LoadCorpusJSONL(filepath.Join(root, "artifacts", "corpus.jsonl"))
+	docs, err := rag.LoadCorpusJSONL(filepath.Join(root, "artifacts", "corpus.jsonl"))
 	if err != nil {
 		t.Fatalf("load corpus: %v", err)
 	}
@@ -42,11 +45,14 @@ func loadTestEngine(t *testing.T) (*Engine, goldenFile) {
 	if err := json.Unmarshal(raw, &g); err != nil {
 		t.Fatalf("unmarshal golden fixtures: %v", err)
 	}
-	return NewEngine(c, hash, docs), g
+	return rag.NewEngine(c, hash, docs), g
 }
 
 func TestPythonGoParity(t *testing.T) {
 	eng, g := loadTestEngine(t)
+	if contract.SchemaHash != eng.SchemaHash {
+		t.Fatalf("codegen hash mismatch: codegen=%s runtime=%s", contract.SchemaHash, eng.SchemaHash)
+	}
 	if eng.SchemaHash != g.SchemaHash {
 		t.Fatalf("schema hash mismatch: go=%s python=%s", eng.SchemaHash, g.SchemaHash)
 	}
@@ -78,12 +84,10 @@ func TestTenantIsolationAndCitations(t *testing.T) {
 	eng, _ := loadTestEngine(t)
 	ctx := context.Background()
 
-	// Missing tenant_id must fail closed
 	if _, err := eng.Retrieve(ctx, "cancel my order", ""); err == nil {
 		t.Fatalf("expected error when tenant_id is empty")
 	}
 
-	// Querying ORDER tenant must never return chunks from another tenant
 	hits, err := eng.Retrieve(ctx, "how do I cancel my order", "ORDER")
 	if err != nil {
 		t.Fatalf("retrieve ORDER: %v", err)
@@ -94,13 +98,12 @@ func TestTenantIsolationAndCitations(t *testing.T) {
 		}
 	}
 
-	// Citation verification catches hallucinated chunk IDs
 	goodAnswer := "Follow the policy in [" + hits[0].Chunk.ChunkID + "]."
-	if ok, _, inv := VerifyCitations(goodAnswer, hits); !ok || len(inv) > 0 {
+	if ok, _, inv := rag.VerifyCitations(goodAnswer, hits); !ok || len(inv) > 0 {
 		t.Fatalf("expected valid citation, got ok=%v invalid=%v", ok, inv)
 	}
 	badAnswer := "According to [POL-FAKE-99#0], you get a free car."
-	if ok, _, inv := VerifyCitations(badAnswer, hits); ok || len(inv) != 1 {
+	if ok, _, inv := rag.VerifyCitations(badAnswer, hits); ok || len(inv) != 1 {
 		t.Fatalf("expected invalid citation detection, got ok=%v invalid=%v", ok, inv)
 	}
 }
