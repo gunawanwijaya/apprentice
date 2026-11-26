@@ -1,0 +1,44 @@
+[
+  {
+    "model": "TF-IDF + LogReg",
+    "seen_f1": 1.0,
+    "unseen_f1": 0.3512,
+    "cpu_p50_ms": 0.489,
+    "size_mb": 0.15
+  },
+  {
+    "model": "MLP (AvgPool)",
+    "seen_f1": 1.0,
+    "unseen_f1": 0.4137,
+    "cpu_p50_ms": 0.028,
+    "size_mb": 7.47
+  },
+  {
+    "model": "1D-CNN (TextCNN)",
+    "seen_f1": 1.0,
+    "unseen_f1": 0.3778,
+    "cpu_p50_ms": 0.126,
+    "size_mb": 7.6
+  },
+  {
+    "model": "BiLSTM (RNN)",
+    "seen_f1": 1.0,
+    "unseen_f1": 0.3141,
+    "cpu_p50_ms": 0.424,
+    "size_mb": 7.71
+  },
+  {
+    "model": "BERT-Tiny (FP32 ONNX)",
+    "seen_f1": 1.0,
+    "unseen_f1": 0.5848,
+    "cpu_p50_ms": 0.55,
+    "size_mb": 16.81
+  },
+  {
+    "model": "BERT-Tiny (INT8 ONNX)",
+    "seen_f1": 1.0,
+    "unseen_f1": 0.5848,
+    "cpu_p50_ms": 0.688,
+    "size_mb": 4.31
+  }
+]
