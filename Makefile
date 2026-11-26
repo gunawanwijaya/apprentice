@@ -17,3 +17,9 @@ test:
 
 serve:
 	cd $(MOD)/go && ONNXRUNTIME_LIB="$(if $(ORT_LIB),$(realpath $(ORT_LIB)),)" GOWORK=off go run ./cmd/server  | jq -R 'fromjson? // .'
+
+infra-up:
+	docker compose up -d
+
+infra-down:
+	docker compose down
