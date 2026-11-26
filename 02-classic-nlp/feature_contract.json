@@ -1,0 +1,15 @@
+{
+  "schema_version": "v1.0.0",
+  "token_pattern": "[a-zA-Z0-9_]+",
+  "bm25": {
+    "k1": 1.5,
+    "b": 0.75,
+    "top_k": 3
+  },
+  "models": [
+    { "name": "intent", "artifact": "intent.onnx", "type": "onnx_text_clf" },
+    { "name": "queue", "artifact": "queue.onnx", "type": "onnx_text_clf" },
+    { "name": "priority", "artifact": "priority.onnx", "type": "onnx_text_clf" },
+    { "name": "ner", "artifact": "ner_crf.json", "type": "crf_viterbi" }
+  ]
+}
