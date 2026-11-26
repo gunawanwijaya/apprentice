@@ -20,6 +20,7 @@ import (
 	"github.com/gunawanwijaya/apprentice/05-llm-gateway/go/internal/guard"
 	"github.com/gunawanwijaya/apprentice/05-llm-gateway/go/internal/ledger"
 	"github.com/gunawanwijaya/apprentice/05-llm-gateway/go/internal/provider"
+	"github.com/gunawanwijaya/apprentice/infra/telemetry"
 )
 
 type GatewayChatRequest struct {
@@ -382,6 +383,9 @@ func resolveFallbackUpstream() (upstreamEndpoint, bool) {
 }
 
 func main() {
+	if shutdownOTel, err := telemetry.Init(context.Background(), "05-llm-gateway"); err == nil {
+		defer shutdownOTel(context.Background())
+	}
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 	var mockStats provider.MockUpstreamStats
 
@@ -433,7 +437,7 @@ func main() {
 	addr := ":" + envOr("PORT", "8080")
 	srv := &http.Server{
 		Addr:              addr,
-		Handler:           mux,
+		Handler:           telemetry.Middleware("05-llm-gateway", mux),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
