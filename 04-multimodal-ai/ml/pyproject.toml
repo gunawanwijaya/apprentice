@@ -1,0 +1,22 @@
+[project]
+name = "ml"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "jupyter>=1.1.1",
+    "kagglehub>=1.0.2",
+    "matplotlib>=3.11.2",
+    "numpy>=2.5.4",
+    "onnx>=1.23.2",
+    "onnxruntime>=1.32.0",
+    "pandas>=3.1.1",
+    "pillow>=13.0.0",
+    "scikit-learn>=1.9.1",
+    "scipy>=1.18.1",
+    "soundfile>=0.14.0",
+    "torch>=2.15.0",
+    "torchvision>=0.29.2",
+]
+
+[[tool.uv.index]]
+url = "https://download.pytorch.org/whl/cpu"

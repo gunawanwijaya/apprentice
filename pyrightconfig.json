@@ -24,6 +24,13 @@
         "03-transformer-onnx/ml",
         "03-transformer-onnx/ml/.venv/lib/python3.12/site-packages"
       ]
+    },
+    {
+      "root": "04-multimodal-ai/ml",
+      "extraPaths": [
+        "04-multimodal-ai/ml",
+        "04-multimodal-ai/ml/.venv/lib/python3.12/site-packages"
+      ]
     }
   ]
 }

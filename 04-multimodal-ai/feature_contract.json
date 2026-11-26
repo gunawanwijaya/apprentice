@@ -1,0 +1,27 @@
+{
+  "schema_version": "v1.0.0",
+  "vision": {
+    "width": 128,
+    "height": 128,
+    "channels": 3,
+    "color_space": "RGB",
+    "layout": "CHW",
+    "mean": [0.485, 0.456, 0.406],
+    "std": [0.229, 0.224, 0.225],
+    "ekyc_labels": ["clean_document", "blurry", "heavy_glare", "low_light"],
+    "unboxing_labels": ["intact_parcel", "damaged_box", "empty_box", "blurry_frame"]
+  },
+  "audio": {
+    "sample_rate": 16000,
+    "channels": 1,
+    "frame_ms": 25,
+    "hop_ms": 10,
+    "num_frames": 100,
+    "labels": ["silence_or_noise", "speech_present"]
+  },
+  "video": {
+    "sample_fps": 1,
+    "max_frames": 10,
+    "dedup_threshold": 0.98
+  }
+}
