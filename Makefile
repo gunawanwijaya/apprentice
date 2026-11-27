@@ -5,7 +5,7 @@ ORT_DIR := $(CURDIR)/.ort
 ORT_SO  := $(ORT_DIR)/onnxruntime.so
 PID_DIR := $(ORT_DIR)/pids
 
-.PHONY: infra-up infra-down infra-logs ort-setup train notebook generate generate-all test test-all serve serve-all stop-all demo-traffic
+.PHONY: infra-up infra-down infra-logs ort-setup train notebook gen gen-all generate generate-all test test-all serve serve-all stop-all demo-traffic
 
 infra-up:
 	docker compose up -d
@@ -38,36 +38,40 @@ train:
 notebook:
 	cd $(MOD)/ml && uv run jupyter nbconvert --to notebook --execute --inplace notebooks/*.ipynb
 
+gen: generate
+
+gen-all: generate-all
+
 generate:
-	cd $(MOD)/go && go generate ./...
+	cd $(MOD)/go && GOWORK=off go generate ./...
 
 generate-all:
 	@for m in $(MODULES); do \
 		echo "=== Generating contract for $$m ==="; \
-		(cd $$m/go && go generate ./...) || exit 1; \
+		(cd $$m/go && GOWORK=off go generate ./...) || exit 1; \
 	done
 
 test: ort-setup
 	@ORT_REAL_DIR=$$(dirname "$$(readlink -f "$(ORT_SO)")"); \
-	cd $(MOD)/go && ONNXRUNTIME_LIB="$(ORT_SO)" LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go test -count=1 -v ./...
+	cd $(MOD)/go && GOWORK=off ONNXRUNTIME_LIB="$(ORT_SO)" LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go test -count=1 -v ./...
 
 test-all: ort-setup
 	@ORT_REAL_DIR=$$(dirname "$$(readlink -f "$(ORT_SO)")"); \
 	for m in $(MODULES); do \
 		echo "=== Testing $$m ==="; \
-		(cd $$m/go && ONNXRUNTIME_LIB="$(ORT_SO)" LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go test -count=1 ./...) || exit 1; \
+		(cd $$m/go && GOWORK=off ONNXRUNTIME_LIB="$(ORT_SO)" LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go test -count=1 ./...) || exit 1; \
 	done
 
 serve: ort-setup
 	@ORT_REAL_DIR=$$(dirname "$$(readlink -f "$(ORT_SO)")"); \
-	cd $(MOD)/go && ONNXRUNTIME_LIB="$(ORT_SO)" LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go run ./cmd/server
+	cd $(MOD)/go && GOWORK=off ONNXRUNTIME_LIB="$(ORT_SO)" LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go run ./cmd/server
 
 serve-all: ort-setup stop-all
 	@mkdir -p "$(PID_DIR)"
 	@ORT_REAL_DIR=$$(dirname "$$(readlink -f "$(ORT_SO)")"); \
 	for m in $(MODULES); do \
 		echo "Building & starting $$m ..."; \
-		(cd $$m/go && go build -o "$(PID_DIR)/$$m.bin" ./cmd/server) || exit 1; \
+		(cd $$m/go && GOWORK=off go build -o "$(PID_DIR)/$$m.bin" ./cmd/server) || exit 1; \
 		(cd $$m/go && \
 			ONNXRUNTIME_LIB="$(ORT_SO)" \
 			LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" \
