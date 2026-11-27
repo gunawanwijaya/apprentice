@@ -3,7 +3,7 @@ module github.com/gunawanwijaya/apprentice/02-classic-nlp/go
 go 1.27.4
 
 require (
-	github.com/gunawanwijaya/apprentice/infra/telemetry v0.0.0-00010101000000-000000000000
+	github.com/gunawanwijaya/apprentice/infra/telemetry v0.0.0
 	github.com/yalue/onnxruntime_go v1.38.0
 	go.opentelemetry.io/otel v1.47.0
 	go.opentelemetry.io/otel/metric v1.47.0

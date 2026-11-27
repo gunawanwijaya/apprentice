@@ -3,7 +3,7 @@ module github.com/gunawanwijaya/apprentice/07-agents-mcp-evals/go
 go 1.26.0
 
 require (
-	github.com/gunawanwijaya/apprentice/infra/telemetry v0.0.0-00010101000000-000000000000
+	github.com/gunawanwijaya/apprentice/infra/telemetry v0.0.0
 	go.opentelemetry.io/otel v1.47.0
 	go.opentelemetry.io/otel/metric v1.47.0
 	golang.org/x/sync v0.25.0

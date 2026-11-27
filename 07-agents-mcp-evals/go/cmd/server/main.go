@@ -105,7 +105,7 @@ func main() {
 		writeJSON(w, http.StatusOK, res)
 	})
 
-	addr := envOr("AGENT_ADDR", ":8087")
+	addr := envOr("AGENT_ADDR", ":"+envOr("PORT", "8087"))
 	srv := &http.Server{
 		Addr:              addr,
 		Handler:           telemetry.Middleware("07-agents-mcp-evals", mux),

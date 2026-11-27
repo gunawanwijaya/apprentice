@@ -211,7 +211,7 @@ func main() {
 		})
 	})
 
-	addr := envOr("RAG_ADDR", ":8086")
+	addr := envOr("RAG_ADDR", ":"+envOr("PORT", "8086"))
 	srv := &http.Server{
 		Addr:              addr,
 		Handler:           telemetry.Middleware("06-production-rag", mux),
