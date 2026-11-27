@@ -10,6 +10,7 @@ import (
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -18,6 +19,10 @@ import (
 	"github.com/gunawanwijaya/apprentice/06-production-rag/go/internal/rag"
 	"github.com/gunawanwijaya/apprentice/06-production-rag/go/internal/store"
 	"github.com/gunawanwijaya/apprentice/infra/telemetry"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
+	"go.opentelemetry.io/otel/propagation"
 )
 
 type queryReq struct {
@@ -63,6 +68,21 @@ func main() {
 		os.Exit(1)
 	}
 	engine := rag.NewEngine(c, hash, docs)
+
+	meter := otel.Meter("06-production-rag")
+	queryCounter, _ := meter.Int64Counter(
+		"rag.queries",
+		metric.WithDescription("Total RAG queries partitioned by tenant, abstention, and citation verification"),
+	)
+	ingestCounter, _ := meter.Int64Counter(
+		"rag.ingests",
+		metric.WithDescription("Total RAG chunks ingested partitioned by tenant"),
+	)
+	rrfScoreHist, _ := meter.Float64Histogram(
+		"rag.top_rrf_score",
+		metric.WithDescription("Top-1 Hybrid RRF score distribution (abstention threshold = 0.012)"),
+		metric.WithExplicitBucketBoundaries(0.0, 0.005, 0.010, 0.012, 0.015, 0.0165, 0.020, 0.025, 0.030, 0.032, 0.033, 0.035),
+	)
 
 	var pgStore *store.PGStore
 	if dsn := os.Getenv("DATABASE_URL"); dsn != "" {
@@ -113,7 +133,10 @@ func main() {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": "chunk_id, tenant_id, and content are required"})
 			return
 		}
+		ch.TenantID = strings.ToUpper(strings.TrimSpace(ch.TenantID))
 		engine.UpsertChunk(ch)
+		ingestCounter.Add(r.Context(), 1, metric.WithAttributes(attribute.String("tenant_id", ch.TenantID)))
+
 		if pgStore != nil {
 			if err := pgStore.UpsertChunk(r.Context(), ch); err != nil {
 				slog.WarnContext(r.Context(), "pgvector upsert failed", "chunk_id", ch.ChunkID, "err", err)
@@ -143,11 +166,23 @@ func main() {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 			return
 		}
+
+		topScore := 0.0
+		if len(hits) > 0 {
+			topScore = hits[0].Score
+		}
+		rrfScoreHist.Record(r.Context(), topScore, metric.WithAttributes(attribute.String("tenant_id", tenant)))
+
 		maxCtx := engine.Contract.Retrieval.FinalContextChunks
 		if len(hits) > maxCtx {
 			hits = hits[:maxCtx]
 		}
 		if engine.ShouldAbstain(hits) {
+			queryCounter.Add(r.Context(), 1, metric.WithAttributes(
+				attribute.String("tenant_id", tenant),
+				attribute.String("abstained", "true"),
+				attribute.String("citation_verified", "false"),
+			))
 			writeJSON(w, http.StatusOK, queryResp{
 				TenantID:   tenant,
 				SchemaHash: engine.SchemaHash,
@@ -160,6 +195,11 @@ func main() {
 
 		answer := synthesizeAnswer(r.Context(), gatewayURL, req.Query, hits)
 		verified, cited, _ := rag.VerifyCitations(answer, hits)
+		queryCounter.Add(r.Context(), 1, metric.WithAttributes(
+			attribute.String("tenant_id", tenant),
+			attribute.String("abstained", "false"),
+			attribute.String("citation_verified", strconv.FormatBool(verified)),
+		))
 		writeJSON(w, http.StatusOK, queryResp{
 			TenantID:         tenant,
 			SchemaHash:       engine.SchemaHash,
@@ -218,6 +258,7 @@ func synthesizeAnswer(ctx context.Context, gatewayURL, query string, hits []rag.
 			},
 		})
 		req, _ := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimRight(gatewayURL, "/")+"/v1/chat/completions", bytes.NewReader(payload))
+		otel.GetTextMapPropagator().Inject(ctx, propagation.HeaderCarrier(req.Header))
 		req.Header.Set("Content-Type", "application/json")
 		resp, err := (&http.Client{Timeout: 10 * time.Second}).Do(req)
 		if err == nil {

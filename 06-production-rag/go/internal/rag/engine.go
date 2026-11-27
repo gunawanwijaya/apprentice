@@ -13,9 +13,11 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -31,7 +33,14 @@ var (
 		"what": {}, "when": {}, "where": {}, "with": {}, "that": {}, "this": {},
 		"it": {}, "be": {}, "have": {},
 	}
-	tracer = otel.Tracer("06-production-rag/engine")
+	tracer      = otel.Tracer("06-production-rag/engine")
+	meter       = otel.Meter("06-production-rag/engine")
+	stageDur, _ = meter.Float64Histogram(
+		"rag.stage.duration",
+		metric.WithUnit("s"),
+		metric.WithDescription("Duration of hybrid RAG retrieval stages in seconds"),
+		metric.WithExplicitBucketBoundaries(0.00005, 0.0001, 0.00025, 0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1),
+	)
 )
 
 type Contract struct {
@@ -281,8 +290,12 @@ func sortHits(hits []hit, topK int) []hit {
 }
 
 func (e *Engine) searchBM25(ctx context.Context, query, tenantID string, topK int) []hit {
-	_, span := tracer.Start(ctx, "rag.bm25")
-	defer span.End()
+	start := time.Now()
+	ctx, span := tracer.Start(ctx, "rag.bm25")
+	defer func() {
+		stageDur.Record(ctx, time.Since(start).Seconds(), metric.WithAttributes(attribute.String("stage", "bm25")))
+		span.End()
+	}()
 
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -316,8 +329,12 @@ func (e *Engine) searchBM25(ctx context.Context, query, tenantID string, topK in
 }
 
 func (e *Engine) searchVector(ctx context.Context, query, tenantID string, topK int) []hit {
-	_, span := tracer.Start(ctx, "rag.vector")
-	defer span.End()
+	start := time.Now()
+	ctx, span := tracer.Start(ctx, "rag.vector")
+	defer func() {
+		stageDur.Record(ctx, time.Since(start).Seconds(), metric.WithAttributes(attribute.String("stage", "vector")))
+		span.End()
+	}()
 
 	e.mu.RLock()
 	defer e.mu.RUnlock()
@@ -340,8 +357,12 @@ func (e *Engine) searchVector(ctx context.Context, query, tenantID string, topK 
 
 // Retrieve runs BM25 and Vector search in parallel via errgroup and fuses them with RRF.
 func (e *Engine) Retrieve(ctx context.Context, query, tenantID string) ([]ScoredChunk, error) {
+	start := time.Now()
 	ctx, span := tracer.Start(ctx, "rag.retrieve")
-	defer span.End()
+	defer func() {
+		stageDur.Record(ctx, time.Since(start).Seconds(), metric.WithAttributes(attribute.String("stage", "rrf_retrieve")))
+		span.End()
+	}()
 	span.SetAttributes(attribute.String("rag.tenant_id", tenantID))
 
 	if e.Contract.Grounding.EnforceTenantFilter && strings.TrimSpace(tenantID) == "" {
