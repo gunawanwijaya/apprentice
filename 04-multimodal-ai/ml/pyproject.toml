@@ -1,22 +1,31 @@
 [project]
-name = "ml"
+name = "04-multimodal-ai-ml"
 version = "0.1.0"
+description = "Multimodal Vision, Audio VAD, and Video benchmark & ONNX exporter"
 requires-python = ">=3.12"
 dependencies = [
-    "jupyter>=1.1.1",
-    "kagglehub>=1.0.2",
-    "matplotlib>=3.11.2",
-    "numpy>=2.5.4",
-    "onnx>=1.23.2",
-    "onnxruntime>=1.32.0",
-    "pandas>=3.1.1",
-    "pillow>=13.0.0",
-    "scikit-learn>=1.9.1",
-    "scipy>=1.18.1",
-    "soundfile>=0.14.0",
-    "torch>=2.15.0",
-    "torchvision>=0.29.2",
+    "ipykernel>=6.29.5",
+    "kagglehub>=0.3.4",
+    "matplotlib>=3.9.2",
+    "nbconvert>=7.16.6",
+    "numpy>=2.1.0",
+    "onnx>=1.17.0",
+    "onnxruntime>=1.20.0",
+    "pandas>=2.2.3",
+    "pillow>=11.0.0",
+    "scikit-learn>=1.5.2",
+    "torch>=2.5.0",
+    "torchvision>=0.20.0",
 ]
 
+[tool.uv]
+package = false
+
 [[tool.uv.index]]
+name = "pytorch-cpu"
 url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }

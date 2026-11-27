@@ -3,8 +3,9 @@ name = "ml"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
+    "ipykernel>=6.29.5",
+    "nbconvert>=7.16.6",
     "catboost>=1.2.10",
-    "jupyter>=1.1.1",
     "kagglehub>=1.0.3",
     "lightgbm>=4.7.0",
     "matplotlib>=3.11.2",
