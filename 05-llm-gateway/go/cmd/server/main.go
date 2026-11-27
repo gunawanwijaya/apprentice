@@ -11,6 +11,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 	"time"
@@ -21,6 +22,9 @@ import (
 	"github.com/gunawanwijaya/apprentice/05-llm-gateway/go/internal/ledger"
 	"github.com/gunawanwijaya/apprentice/05-llm-gateway/go/internal/provider"
 	"github.com/gunawanwijaya/apprentice/infra/telemetry"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 )
 
 type GatewayChatRequest struct {
@@ -64,6 +68,11 @@ type RefundDecision struct {
 }
 
 func NewGatewayMux(router *provider.Router, cacheStore *cache.Store, ledgerMgr *ledger.Manager) *http.ServeMux {
+	meter := otel.Meter("05-llm-gateway")
+	reqCounter, _ := meter.Int64Counter("llm.requests", metric.WithDescription("Gateway requests by cache status, entity guard, and failover"))
+	tokCounter, _ := meter.Int64Counter("llm.tokens", metric.WithDescription("Prompt and completion tokens processed"))
+	costCounter, _ := meter.Float64Counter("llm.cost_usd", metric.WithDescription("Cumulative upstream LLM cost in USD"))
+
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
@@ -134,6 +143,11 @@ func NewGatewayMux(router *provider.Router, cacheStore *cache.Store, ledgerMgr *
 		if !req.Stream {
 			if hit, status, sim, ok := cacheStore.Lookup(req.TenantID, exactKey, userText, allowExact, allowSemantic); ok {
 				ledgerMgr.Record(req.TenantID, 0, 0, 0.0, true, false, false)
+				reqCounter.Add(r.Context(), 1, metric.WithAttributes(
+					attribute.String("cache_status", status),
+					attribute.String("entity_sensitive", strconv.FormatBool(scan.EntitySensitive)),
+					attribute.String("failed_over", "false"),
+				))
 				w.Header().Set("Content-Type", "application/json")
 				_ = json.NewEncoder(w).Encode(GatewayChatResponse{
 					Model:           hit.Model,
@@ -176,6 +190,15 @@ func NewGatewayMux(router *provider.Router, cacheStore *cache.Store, ledgerMgr *
 				CompletionTokens: res.CompletionTokens,
 			}, allowExact, allowSemantic)
 
+			reqCounter.Add(r.Context(), 1, metric.WithAttributes(
+				attribute.String("cache_status", "miss"),
+				attribute.String("entity_sensitive", strconv.FormatBool(scan.EntitySensitive)),
+				attribute.String("failed_over", strconv.FormatBool(res.FailedOver)),
+			))
+			tokCounter.Add(r.Context(), int64(res.PromptTokens), metric.WithAttributes(attribute.String("type", "prompt"), attribute.String("model", res.Model)))
+			tokCounter.Add(r.Context(), int64(res.CompletionTokens), metric.WithAttributes(attribute.String("type", "completion"), attribute.String("model", res.Model)))
+			costCounter.Add(r.Context(), cost, metric.WithAttributes(attribute.String("model", res.Model), attribute.String("provider", res.Provider)))
+
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(GatewayChatResponse{
 				Model:            res.Model,
@@ -212,6 +235,14 @@ func NewGatewayMux(router *provider.Router, cacheStore *cache.Store, ledgerMgr *
 		defer func() {
 			cost := contract.ComputeCostUSD(req.Model, promptToks, streamedChunks)
 			ledgerMgr.Record(req.TenantID, promptToks, streamedChunks, cost, false, aborted, false)
+			reqCounter.Add(r.Context(), 1, metric.WithAttributes(
+				attribute.String("cache_status", "stream"),
+				attribute.String("entity_sensitive", strconv.FormatBool(scan.EntitySensitive)),
+				attribute.String("failed_over", "false"),
+			))
+			tokCounter.Add(r.Context(), int64(promptToks), metric.WithAttributes(attribute.String("type", "prompt"), attribute.String("model", req.Model)))
+			tokCounter.Add(r.Context(), int64(streamedChunks), metric.WithAttributes(attribute.String("type", "completion"), attribute.String("model", req.Model)))
+			costCounter.Add(r.Context(), cost, metric.WithAttributes(attribute.String("model", req.Model), attribute.String("provider", "stream")))
 		}()
 
 		err := router.Primary.Stream(r.Context(), req.Model, provider.ChatRequest{
@@ -320,6 +351,15 @@ func NewGatewayMux(router *provider.Router, cacheStore *cache.Store, ledgerMgr *
 			if parseErr == nil {
 				cost := contract.ComputeCostUSD(usedModel, totalPrompt, totalComp)
 				ledgerMgr.Record(req.TenantID, totalPrompt, totalComp, cost, false, false, res.FailedOver)
+				reqCounter.Add(r.Context(), 1, metric.WithAttributes(
+					attribute.String("cache_status", "extract_json"),
+					attribute.String("entity_sensitive", "true"),
+					attribute.String("failed_over", strconv.FormatBool(res.FailedOver)),
+				))
+				tokCounter.Add(r.Context(), int64(totalPrompt), metric.WithAttributes(attribute.String("type", "prompt"), attribute.String("model", usedModel)))
+				tokCounter.Add(r.Context(), int64(totalComp), metric.WithAttributes(attribute.String("type", "completion"), attribute.String("model", usedModel)))
+				costCounter.Add(r.Context(), cost, metric.WithAttributes(attribute.String("model", usedModel), attribute.String("provider", res.Provider)))
+
 				w.Header().Set("Content-Type", "application/json")
 				_ = json.NewEncoder(w).Encode(map[string]any{
 					"decision":   decision,
@@ -360,7 +400,7 @@ func resolvePrimaryUpstream() (upstreamEndpoint, bool) {
 	case os.Getenv("OPENAI_API_KEY") != "":
 		return upstreamEndpoint{"openai", envOr("OPENAI_BASE_URL", "https://api.openai.com/v1"), os.Getenv("OPENAI_API_KEY"), os.Getenv("PRIMARY_MODEL")}, true
 	case os.Getenv("GROQ_API_KEY") != "":
-		return upstreamEndpoint{"groq", "https://api.groq.com/openai/v1", os.Getenv("GROQ_API_KEY"), envOr("PRIMARY_MODEL", "openai/gpt-oss-20b")}, true
+		return upstreamEndpoint{"groq", "https://api.groq.com/openai/v1", os.Getenv("GROQ_API_KEY"), envOr("PRIMARY_MODEL", "llama-3.1-8b-instant")}, true
 	case os.Getenv("OPENCODE_API_KEY") != "" && os.Getenv("OPENCODE_BASE_URL") != "":
 		return upstreamEndpoint{"opencode", os.Getenv("OPENCODE_BASE_URL"), os.Getenv("OPENCODE_API_KEY"), os.Getenv("PRIMARY_MODEL")}, true
 	case os.Getenv("NVIDIA_API_KEY") != "":
@@ -374,7 +414,7 @@ func resolveFallbackUpstream() (upstreamEndpoint, bool) {
 	googleKey := envOr("GOOGLE_API_KEY", os.Getenv("GEMINI_API_KEY"))
 	switch {
 	case googleKey != "":
-		return upstreamEndpoint{"gemini", envOr("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai"), googleKey, envOr("FALLBACK_MODEL", "gemini-3.8-flash")}, true
+		return upstreamEndpoint{"gemini", envOr("GEMINI_BASE_URL", "https://generativelanguage.googleapis.com/v1beta/openai"), googleKey, envOr("FALLBACK_MODEL", "gemini-2.5-flash")}, true
 	case os.Getenv("NVIDIA_API_KEY") != "":
 		return upstreamEndpoint{"nvidia", "https://integrate.api.nvidia.com/v1", os.Getenv("NVIDIA_API_KEY"), envOr("FALLBACK_MODEL", "meta/llama-3.1-8b-instruct")}, true
 	default:
@@ -383,12 +423,14 @@ func resolveFallbackUpstream() (upstreamEndpoint, bool) {
 }
 
 func main() {
-	if shutdownOTel, err := telemetry.Init(context.Background(), "05-llm-gateway"); err == nil {
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	if shutdownOTel, err := telemetry.Init(ctx, "05-llm-gateway"); err == nil {
 		defer shutdownOTel(context.Background())
 	}
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
-	var mockStats provider.MockUpstreamStats
 
+	var mockStats provider.MockUpstreamStats
 	pri, okPri := resolvePrimaryUpstream()
 	if !okPri {
 		srv := httptest.NewServer(provider.NewMockUpstreamHandler("openai", 18*time.Millisecond, 10*time.Millisecond, &mockStats))
@@ -404,21 +446,6 @@ func main() {
 	}
 
 	httpClient := &http.Client{Timeout: 30 * time.Second}
-	var secondaryClient provider.Client = &provider.OpenAIHTTPClient{
-		ProviderName:  fb.name,
-		BaseURL:       fb.url,
-		APIKey:        fb.key,
-		ModelOverride: fb.model,
-		HTTPClient:    httpClient,
-	}
-	if fb.name == "gemini" && fb.key != "" && os.Getenv("GEMINI_BASE_URL") == "" {
-		secondaryClient = &provider.GeminiNativeClient{
-			APIKey:        fb.key,
-			ModelOverride: fb.model,
-			HTTPClient:    httpClient,
-		}
-	}
-
 	router := &provider.Router{
 		Primary: &provider.OpenAIHTTPClient{
 			ProviderName:  pri.name,
@@ -427,34 +454,35 @@ func main() {
 			ModelOverride: pri.model,
 			HTTPClient:    httpClient,
 		},
-		Secondary: secondaryClient,
+		Secondary: &provider.OpenAIHTTPClient{
+			ProviderName:  fb.name,
+			BaseURL:       fb.url,
+			APIKey:        fb.key,
+			ModelOverride: fb.model,
+			HTTPClient:    httpClient,
+		},
 	}
 
 	cacheStore := cache.NewStore(contract.SemanticSimilarityThreshold)
 	ledgerMgr := ledger.NewManager(contract.DefaultRPM, contract.DefaultDailyBudgetUSD)
 	mux := NewGatewayMux(router, cacheStore, ledgerMgr)
 
-	addr := ":" + envOr("PORT", "8080")
+	addr := ":" + envOr("PORT", "8085")
 	srv := &http.Server{
 		Addr:              addr,
 		Handler:           telemetry.Middleware("05-llm-gateway", mux),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
 	go func() {
-		logger.Info("starting go-llm-gateway",
+		slog.Info("05-llm-gateway listening",
 			"addr", addr,
 			"schema_hash", contract.SchemaHash,
 			"primary_provider", pri.name,
-			"primary_model", envOr("PRIMARY_MODEL", pri.model),
 			"fallback_provider", fb.name,
-			"fallback_model", envOr("FALLBACK_MODEL", fb.model),
 		)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.Error("server error", "error", err)
+			slog.Error("server error", "error", err)
 			os.Exit(1)
 		}
 	}()

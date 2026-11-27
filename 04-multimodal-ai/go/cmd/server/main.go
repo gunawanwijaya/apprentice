@@ -18,7 +18,11 @@ import (
 	"github.com/gunawanwijaya/apprentice/04-multimodal-ai/go/internal/contract"
 	"github.com/gunawanwijaya/apprentice/04-multimodal-ai/go/internal/video"
 	"github.com/gunawanwijaya/apprentice/04-multimodal-ai/go/internal/vision"
+	"github.com/gunawanwijaya/apprentice/infra/telemetry"
 	ort "github.com/yalue/onnxruntime_go"
+	"go.opentelemetry.io/otel"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/metric"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -109,7 +113,6 @@ func topClass(probs []float32, labels []string) (string, float32, map[string]flo
 	return labels[best], probs[best], probMap
 }
 
-// readUpload accepts either multipart/form-data ("file" field) or raw binary body.
 func readUpload(w http.ResponseWriter, r *http.Request, maxBytes int64) ([]byte, error) {
 	r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
 	ct := r.Header.Get("Content-Type")
@@ -128,13 +131,18 @@ func readUpload(w http.ResponseWriter, r *http.Request, maxBytes int64) ([]byte,
 }
 
 func main() {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer stop()
+
+	if shutdownOTel, err := telemetry.Init(ctx, "04-multimodal-ai"); err == nil {
+		defer shutdownOTel(context.Background())
+	}
 
 	if libPath := os.Getenv("ONNXRUNTIME_LIB"); libPath != "" {
 		ort.SetSharedLibraryPath(libPath)
 	}
 	if err := ort.InitializeEnvironment(); err != nil {
-		logger.Error("failed to initialize onnxruntime", "error", err)
+		slog.Error("failed to initialize onnxruntime", "error", err)
 		os.Exit(1)
 	}
 	defer ort.DestroyEnvironment()
@@ -142,21 +150,21 @@ func main() {
 	artifactsDir := envOr("ARTIFACTS_DIR", "../artifacts")
 	ekycSess, err := ort.NewDynamicAdvancedSession(artifactsDir+"/ekyc_vision.onnx", []string{"image"}, []string{"logits"}, nil)
 	if err != nil {
-		logger.Error("load ekyc_vision.onnx failed", "error", err)
+		slog.Error("load ekyc_vision.onnx failed", "error", err)
 		os.Exit(1)
 	}
 	defer ekycSess.Destroy()
 
 	unbSess, err := ort.NewDynamicAdvancedSession(artifactsDir+"/unboxing_vision.onnx", []string{"image"}, []string{"logits"}, nil)
 	if err != nil {
-		logger.Error("load unboxing_vision.onnx failed", "error", err)
+		slog.Error("load unboxing_vision.onnx failed", "error", err)
 		os.Exit(1)
 	}
 	defer unbSess.Destroy()
 
 	audSess, err := ort.NewDynamicAdvancedSession(artifactsDir+"/audio_vad.onnx", []string{"audio_features"}, []string{"logits"}, nil)
 	if err != nil {
-		logger.Error("load audio_vad.onnx failed", "error", err)
+		slog.Error("load audio_vad.onnx failed", "error", err)
 		os.Exit(1)
 	}
 	defer audSess.Destroy()
@@ -164,8 +172,17 @@ func main() {
 	imgShape := ort.NewShape(1, contract.VisionChannels, contract.VisionHeight, contract.VisionWidth)
 	audShape := ort.NewShape(1, contract.AudioNumFrames, 2)
 
-	mux := http.NewServeMux()
+	meter := otel.Meter("04-multimodal-ai")
+	stageDur, _ := meter.Float64Histogram(
+		"multimodal.stage.duration",
+		metric.WithUnit("s"),
+		metric.WithDescription("Multimodal pipeline stage duration (ffmpeg demux vs ONNX)"),
+		metric.WithExplicitBucketBoundaries(0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.25, 0.5, 1.0),
+	)
+	decCounter, _ := meter.Int64Counter("multimodal.decisions", metric.WithDescription("Decisions by modality and verdict"))
+	dedupCounter, _ := meter.Int64Counter("multimodal.frames_dedup_saved", metric.WithDescription("Static video frames skipped via cosine dedup"))
 
+	mux := http.NewServeMux()
 	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]any{
@@ -175,7 +192,6 @@ func main() {
 		})
 	})
 
-	// Atomic Vision Endpoint: POST /image/classify?mode=ekyc|unboxing
 	mux.HandleFunc("POST /image/classify", func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		defer r.Body.Close()
@@ -212,6 +228,9 @@ func main() {
 			return
 		}
 		lbl, conf, probMap := topClass(softmax(logits), labels)
+		stageDur.Record(r.Context(), time.Since(start).Seconds(), metric.WithAttributes(attribute.String("stage", "vision_"+mode)))
+		decCounter.Add(r.Context(), 1, metric.WithAttributes(attribute.String("modality", "image_"+mode), attribute.String("verdict", lbl)))
+
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(ClassifyResponse{
 			Label:         lbl,
@@ -222,7 +241,6 @@ func main() {
 		})
 	})
 
-	// Atomic Audio Endpoint: POST /audio/vad
 	mux.HandleFunc("POST /audio/vad", func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		defer r.Body.Close()
@@ -243,6 +261,9 @@ func main() {
 			return
 		}
 		lbl, conf, probMap := topClass(softmax(logits), contract.AudioLabels)
+		stageDur.Record(r.Context(), time.Since(start).Seconds(), metric.WithAttributes(attribute.String("stage", "audio_vad")))
+		decCounter.Add(r.Context(), 1, metric.WithAttributes(attribute.String("modality", "audio_vad"), attribute.String("verdict", lbl)))
+
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(ClassifyResponse{
 			Label:         lbl,
@@ -253,7 +274,6 @@ func main() {
 		})
 	})
 
-	// Shared Video -> (Vision || Audio) Concurrent Handler
 	handleVideo := func(useCase string, visSess *ort.DynamicAdvancedSession, visLabels []string) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			totalStart := time.Now()
@@ -268,11 +288,10 @@ func main() {
 			demuxStart := time.Now()
 			demuxed, err := video.Demux(r.Context(), videoBytes)
 			if err != nil {
-				logger.Error("video demux failed", "error", err)
-				http.Error(w, `{"error":"video demux failed (ensure valid mp4/webm)"}`, http.StatusBadRequest)
+				http.Error(w, `{"error":"video demux failed"}`, http.StatusBadRequest)
 				return
 			}
-			demuxUs := time.Since(demuxStart).Microseconds()
+			demuxDur := time.Since(demuxStart)
 
 			infStart := time.Now()
 			var (
@@ -283,8 +302,6 @@ func main() {
 			)
 
 			g, _ := errgroup.WithContext(r.Context())
-
-			// Goroutine 1: Vision (Frame Deduplication -> 2D-CNN ONNX)
 			g.Go(func() error {
 				var lastTensor []float32
 				for idx, framePNG := range demuxed.Frames {
@@ -303,16 +320,10 @@ func main() {
 						return err
 					}
 					lbl, conf, _ := topClass(softmax(logits), visLabels)
-					framePreds = append(framePreds, FramePrediction{
-						FrameIndex: idx,
-						Label:      lbl,
-						Confidence: conf,
-					})
+					framePreds = append(framePreds, FramePrediction{FrameIndex: idx, Label: lbl, Confidence: conf})
 				}
 				return nil
 			})
-
-			// Goroutine 2: Audio (16kHz PCM -> 1D-CNN VAD ONNX)
 			g.Go(func() error {
 				if len(demuxed.AudioWAV) == 0 {
 					return nil
@@ -330,13 +341,11 @@ func main() {
 			})
 
 			if err := g.Wait(); err != nil {
-				logger.Error("multimodal inference failed", "error", err)
 				http.Error(w, `{"error":"multimodal inference failed"}`, http.StatusInternalServerError)
 				return
 			}
-			infUs := time.Since(infStart).Microseconds()
+			infDur := time.Since(infStart)
 
-			// Majority vote across deduplicated frames
 			counts := make(map[string]int)
 			dominant := "unknown"
 			bestCount := 0
@@ -367,6 +376,13 @@ func main() {
 				}
 			}
 
+			stageDur.Record(r.Context(), demuxDur.Seconds(), metric.WithAttributes(attribute.String("stage", "ffmpeg_demux")))
+			stageDur.Record(r.Context(), infDur.Seconds(), metric.WithAttributes(attribute.String("stage", "concurrent_onnx")))
+			decCounter.Add(r.Context(), 1, metric.WithAttributes(attribute.String("modality", "video_"+useCase), attribute.String("verdict", verdict)))
+			if skipped := len(demuxed.Frames) - dedupCount; skipped > 0 {
+				dedupCounter.Add(r.Context(), int64(skipped))
+			}
+
 			w.Header().Set("Content-Type", "application/json")
 			_ = json.NewEncoder(w).Encode(VideoAnalysisResponse{
 				UseCase:           useCase,
@@ -378,8 +394,8 @@ func main() {
 				AudioVerdict:      audioVerdict,
 				AudioConfidence:   audioConf,
 				SchemaHash:        contract.SchemaHash,
-				DemuxUs:           demuxUs,
-				InferenceUs:       infUs,
+				DemuxUs:           demuxDur.Microseconds(),
+				InferenceUs:       infDur.Microseconds(),
 				TotalLatencyUs:    time.Since(totalStart).Microseconds(),
 			})
 		}
@@ -388,30 +404,22 @@ func main() {
 	mux.HandleFunc("POST /ekyc/video", handleVideo("ekyc", ekycSess, contract.EKYCLabels))
 	mux.HandleFunc("POST /unboxing/video", handleVideo("unboxing", unbSess, contract.UnboxingLabels))
 
-	addr := ":" + envOr("PORT", "8080")
+	addr := ":" + envOr("PORT", "8084")
 	srv := &http.Server{
 		Addr:              addr,
-		Handler:           mux,
+		Handler:           telemetry.Middleware("04-multimodal-ai", mux),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
-	ctx, stop := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
-	defer stop()
-
 	go func() {
-		logger.Info("starting multimodal inference server",
-			"addr", addr,
-			"schema_version", contract.SchemaVersion,
-			"schema_hash", contract.SchemaHash,
-		)
+		slog.Info("04-multimodal-ai listening", "addr", addr, "schema_hash", contract.SchemaHash)
 		if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-			logger.Error("server error", "error", err)
+			slog.Error("server error", "error", err)
 			os.Exit(1)
 		}
 	}()
 
 	<-ctx.Done()
-	logger.Info("shutting down server")
 	shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	_ = srv.Shutdown(shutdownCtx)
