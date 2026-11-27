@@ -1,16 +1,27 @@
 {
   "uid": "apprentice-lgtm-stack",
   "title": "00 — Apprentice Home: LGTM, pgvector, RustFS & Go AI Fleet",
-  "tags": ["apprentice-home", "lgtm", "postgresql", "rustfs", "otel"],
+  "tags": [
+    "apprentice-home",
+    "lgtm",
+    "postgresql",
+    "rustfs",
+    "otel"
+  ],
   "timezone": "browser",
   "schemaVersion": 39,
   "refresh": "5s",
-  "time": { "from": "now-15m", "to": "now" },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
   "links": [
     {
-      "title": "Module Dashboards (01–06)",
+      "title": "Module Dashboards (01–07)",
       "type": "dashboards",
-      "tags": ["apprentice-module"],
+      "tags": [
+        "apprentice-module"
+      ],
       "asDropdown": true,
       "includeVars": true,
       "keepTime": true
@@ -20,15 +31,31 @@
     {
       "type": "row",
       "title": "1. LGTM Self-Monitoring",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
     },
     {
       "type": "stat",
       "title": "LGTM Components Up",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 5, "w": 8, "x": 0, "y": 1 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 1
+      },
       "targets": [
-        { "expr": "up", "legendFormat": "{{job}} ({{instance}})", "exemplar": true }
+        {
+          "expr": "up",
+          "legendFormat": "{{job}} ({{instance}})"
+        }
       ],
       "fieldConfig": {
         "defaults": {
@@ -36,8 +63,14 @@
             {
               "type": "value",
               "options": {
-                "0": { "text": "DOWN", "color": "red" },
-                "1": { "text": "UP", "color": "green" }
+                "0": {
+                  "text": "DOWN",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "UP",
+                  "color": "green"
+                }
               }
             }
           ]
@@ -46,137 +79,307 @@
     },
     {
       "type": "timeseries",
-      "title": "OTel Collector Ingest Rate (signals/sec)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 5, "w": 8, "x": 8, "y": 1 },
+      "title": "LGTM CPU Usage (%)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 1
+      },
       "targets": [
-        { "expr": "sum(rate(otelcol_receiver_accepted_spans_total[1m]))", "legendFormat": "spans/s", "exemplar": true },
-        { "expr": "sum(rate(otelcol_receiver_accepted_metric_points_total[1m]))", "legendFormat": "metrics/s", "exemplar": true },
-        { "expr": "sum(rate(otelcol_receiver_accepted_log_records_total[1m]))", "legendFormat": "logs/s", "exemplar": true }
-      ]
+        {
+          "expr": "rate(process_cpu_seconds_total[1m]) * 100",
+          "legendFormat": "{{job}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 2
+        }
+      }
     },
     {
       "type": "timeseries",
       "title": "LGTM Memory (RSS MB)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 5, "w": 8, "x": 16, "y": 1 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 1
+      },
       "targets": [
-        { "expr": "process_resident_memory_bytes / 1024 / 1024", "legendFormat": "{{job}}", "exemplar": true },
-        { "expr": "otelcol_process_memory_rss / 1024 / 1024", "legendFormat": "otelcol-contrib", "exemplar": true }
+        {
+          "expr": "process_resident_memory_bytes / 1024 / 1024",
+          "legendFormat": "{{job}}"
+        }
       ],
-      "fieldConfig": { "defaults": { "unit": "decmbytes" } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "decmbytes"
+        }
+      }
     },
     {
       "type": "timeseries",
       "title": "LGTM Goroutines",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 5, "w": 12, "x": 0, "y": 6 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 0,
+        "y": 6
+      },
       "targets": [
-        { "expr": "go_goroutines", "legendFormat": "{{job}}", "exemplar": true }
+        {
+          "expr": "go_goroutines",
+          "legendFormat": "{{job}}"
+        }
       ]
     },
     {
       "type": "timeseries",
-      "title": "OTel Collector Failed / Refused Signals / sec",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 5, "w": 12, "x": 12, "y": 6 },
+      "title": "Telemetry TSDB Ingest Rate (samples/sec)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 12,
+        "x": 12,
+        "y": 6
+      },
       "targets": [
-        { "expr": "sum(rate(otelcol_receiver_failed_metric_points_total[1m]))", "legendFormat": "failed_metrics/s", "exemplar": true },
-        { "expr": "sum(rate(otelcol_receiver_refused_metric_points_total[1m]))", "legendFormat": "refused_metrics/s", "exemplar": true },
-        { "expr": "sum(rate(otelcol_receiver_failed_log_records_total[1m]))", "legendFormat": "failed_logs/s", "exemplar": true },
-        { "expr": "sum(rate(otelcol_receiver_refused_log_records_total[1m]))", "legendFormat": "refused_logs/s", "exemplar": true }
+        {
+          "expr": "sum(rate(prometheus_tsdb_head_samples_appended_total[1m]))",
+          "legendFormat": "prometheus samples/s"
+        },
+        {
+          "expr": "sum(rate(http_server_request_duration_seconds_count[1m])) or vector(0)",
+          "legendFormat": "go fleet requests/s"
+        }
       ]
     },
     {
       "type": "row",
       "title": "2. PostgreSQL (pgvector) — OTel Receiver",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 11 }
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      }
     },
     {
       "type": "timeseries",
       "title": "PG Active Backends",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 12 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 12
+      },
       "targets": [
-        { "expr": "postgresql_backends", "legendFormat": "backends ({{postgresql_database_name}})", "exemplar": true }
+        {
+          "expr": "postgresql_backends",
+          "legendFormat": "backends ({{postgresql_database_name}})"
+        }
       ]
     },
     {
       "type": "timeseries",
       "title": "PG Commits & Rollbacks / sec",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 12 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 12
+      },
       "targets": [
-        { "expr": "rate(postgresql_commits_total[1m])", "legendFormat": "commits", "exemplar": true },
-        { "expr": "rate(postgresql_rollbacks_total[1m])", "legendFormat": "rollbacks", "exemplar": true }
+        {
+          "expr": "rate(postgresql_commits_total[1m])",
+          "legendFormat": "commits"
+        },
+        {
+          "expr": "rate(postgresql_rollbacks_total[1m])",
+          "legendFormat": "rollbacks"
+        }
       ]
     },
     {
       "type": "timeseries",
       "title": "PG DB Size (MB)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 12 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 12
+      },
       "targets": [
-        { "expr": "postgresql_db_size_bytes / 1024 / 1024", "legendFormat": "db_size ({{postgresql_database_name}})", "exemplar": true }
+        {
+          "expr": "postgresql_db_size_bytes / 1024 / 1024",
+          "legendFormat": "db_size ({{postgresql_database_name}})"
+        }
       ],
-      "fieldConfig": { "defaults": { "unit": "decmbytes" } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "decmbytes"
+        }
+      }
     },
     {
       "type": "row",
       "title": "3. RustFS S3 & Unified Service Logs (Loki)",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 }
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 18
+      }
     },
     {
       "type": "timeseries",
       "title": "RustFS Metrics (All rustfs_*)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 6, "w": 12, "x": 0, "y": 19 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 19
+      },
       "targets": [
-        { "expr": "{__name__=~\"rustfs_.*\"}", "legendFormat": "{{__name__}}", "exemplar": true }
+        {
+          "expr": "sum by (__name__) ({__name__=~\"rustfs_.*\"})",
+          "legendFormat": "{{__name__}}"
+        }
       ]
     },
     {
       "type": "logs",
       "title": "RustFS & Go Fleet Logs (Loki)",
-      "datasource": { "type": "loki", "uid": "loki" },
-      "gridPos": { "h": 6, "w": 12, "x": 12, "y": 19 },
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 19
+      },
       "targets": [
-        { "expr": "{service_name=~\".+\"}", "exemplar": true }
+        {
+          "expr": "{service_name=~\".+\"}"
+        }
       ]
     },
     {
       "type": "row",
-      "title": "4. Go AI Fleet (01–06 Unified HTTP Golden Signals)",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 25 }
+      "title": "4. Go AI Fleet (01–07 Unified HTTP Golden Signals)",
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 25
+      }
     },
     {
       "type": "stat",
       "title": "Total Fleet Requests (Window)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 6, "w": 6, "x": 0, "y": 26 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 6,
+        "x": 0,
+        "y": 26
+      },
       "targets": [
-        { "expr": "sum by (service_name) (increase(http_server_request_duration_seconds_count[$__range]))", "legendFormat": "{{service_name}}", "exemplar": true }
+        {
+          "expr": "sum by (service_name) (increase(http_server_request_duration_seconds_count[$__range]))",
+          "legendFormat": "{{service_name}}"
+        }
       ],
-      "fieldConfig": { "defaults": { "decimals": 0 } }
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
     },
     {
       "type": "timeseries",
       "title": "HTTP Requests / sec by Service & Route",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 6, "w": 9, "x": 6, "y": 26 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 6,
+        "y": 26
+      },
       "targets": [
-        { "expr": "sum by (service_name, http_route) (rate(http_server_request_duration_seconds_count[1m]))", "legendFormat": "{{service_name}} {{http_route}}", "exemplar": true }
+        {
+          "expr": "sum by (service_name, http_route) (rate(http_server_request_duration_seconds_count[1m]))",
+          "legendFormat": "{{service_name}} {{http_route}}"
+        }
       ]
     },
     {
       "type": "timeseries",
       "title": "HTTP p95 Latency (ms) by Service",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 6, "w": 9, "x": 15, "y": 26 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 9,
+        "x": 15,
+        "y": 26
+      },
       "targets": [
-        { "expr": "histogram_quantile(0.95, sum by (le, service_name) (rate(http_server_request_duration_seconds_bucket[1m]))) * 1000", "legendFormat": "{{service_name}} p95", "exemplar": true }
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, service_name) (rate(http_server_request_duration_seconds_bucket[1m]))) * 1000",
+          "legendFormat": "{{service_name}} p95",
+          "exemplar": true
+        }
       ],
-      "fieldConfig": { "defaults": { "unit": "ms" } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      }
     }
   ]
 }

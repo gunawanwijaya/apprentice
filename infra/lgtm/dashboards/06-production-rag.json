@@ -1,22 +1,31 @@
 {
   "uid": "apprentice-06-rag",
-  "title": "06 — Production RAG: Live Hybrid Retrieval & Grounding",
-  "tags": ["apprentice-module", "rag", "otel"],
+  "title": "06 \u2014 Production RAG: Live Hybrid Retrieval & Grounding",
+  "tags": [
+    "apprentice-module",
+    "rag",
+    "otel"
+  ],
   "timezone": "browser",
   "schemaVersion": 39,
   "refresh": "5s",
-  "time": { "from": "now-15m", "to": "now" },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
   "links": [
     {
-      "title": "00 — Apprentice Home",
+      "title": "00 \u2014 Apprentice Home",
       "type": "link",
       "url": "/d/apprentice-lgtm-stack",
       "keepTime": true
     },
     {
-      "title": "Module Dashboards (01–06)",
+      "title": "Module Dashboards (01\u201307)",
       "type": "dashboards",
-      "tags": ["apprentice-module"],
+      "tags": [
+        "apprentice-module"
+      ],
       "asDropdown": true,
       "keepTime": true
     }
@@ -25,40 +34,84 @@
     {
       "type": "row",
       "title": "1. Grounding & Guardrail KPIs",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 }
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      }
     },
     {
       "type": "stat",
       "title": "Total Queries (Window)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 1
+      },
       "targets": [
-        { "expr": "sum(increase(rag_queries_total[$__range]))", "legendFormat": "queries", "exemplar": true }
+        {
+          "expr": "sum(increase(rag_queries_total[$__range]))",
+          "legendFormat": "queries",
+          "exemplar": true
+        }
       ],
-      "fieldConfig": { "defaults": { "decimals": 0 } }
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
     },
     {
       "type": "stat",
       "title": "Abstention Rate (%)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 1
+      },
       "targets": [
         {
           "expr": "100 * (sum(increase(rag_queries_total{abstained=\"true\"}[$__range])) or vector(0)) / clamp_min(sum(increase(rag_queries_total[$__range])), 1)",
-          "legendFormat": "abstained %", "exemplar": true
+          "legendFormat": "abstained %",
+          "exemplar": true
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "percent", "decimals": 1 } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1
+        }
+      }
     },
     {
       "type": "stat",
       "title": "Citation Verification Rate (% Answered)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 1
+      },
       "targets": [
         {
           "expr": "100 * (sum(increase(rag_queries_total{abstained=\"false\",citation_verified=\"true\"}[$__range])) or vector(0)) / clamp_min(sum(increase(rag_queries_total{abstained=\"false\"}[$__range])), 1)",
-          "legendFormat": "verified %", "exemplar": true
+          "legendFormat": "verified %",
+          "exemplar": true
         }
       ],
       "fieldConfig": {
@@ -68,9 +121,18 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              { "color": "red", "value": null },
-              { "color": "yellow", "value": 95 },
-              { "color": "green", "value": 99.9 }
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 95
+              },
+              {
+                "color": "green",
+                "value": 99.9
+              }
             ]
           }
         }
@@ -79,83 +141,199 @@
     {
       "type": "stat",
       "title": "Live Policy Chunks Ingested",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 1
+      },
       "targets": [
-        { "expr": "sum(increase(rag_ingests_total[$__range])) or vector(0)", "legendFormat": "ingests", "exemplar": true }
+        {
+          "expr": "sum(increase(rag_ingests_total[$__range])) or vector(0)",
+          "legendFormat": "ingests",
+          "exemplar": true
+        }
       ],
-      "fieldConfig": { "defaults": { "decimals": 0 } }
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
     },
     {
       "type": "row",
       "title": "2. Live Equivalents of Offline Audit Plots (Tenant Density & RRF Score Distribution)",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 6 }
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 6
+      }
     },
     {
       "type": "bargauge",
       "title": "Live Queries per Tenant (vs. rag_tenant_distribution.png)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 7 },
-      "options": { "orientation": "horizontal", "displayMode": "gradient" },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 7
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
       "targets": [
-        { "expr": "sort_desc(sum by (tenant_id) (increase(rag_queries_total[$__range])))", "legendFormat": "{{tenant_id}}", "exemplar": true }
+        {
+          "expr": "sum by (tenant_id) (increase(rag_queries_total[$__range]))",
+          "legendFormat": "{{tenant_id}}",
+          "exemplar": true,
+          "instant": true
+        }
       ],
-      "fieldConfig": { "defaults": { "decimals": 0 } }
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
     },
     {
       "type": "timeseries",
       "title": "Top-1 Hybrid RRF Score Quantiles vs. Min Relevance Threshold (0.012)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 7 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 7
+      },
       "targets": [
-        { "expr": "histogram_quantile(0.90, sum by (le) (rate(rag_top_rrf_score_bucket[2m])))", "legendFormat": "p90 RRF score", "exemplar": true },
-        { "expr": "histogram_quantile(0.50, sum by (le) (rate(rag_top_rrf_score_bucket[2m])))", "legendFormat": "p50 RRF score", "exemplar": true },
-        { "expr": "histogram_quantile(0.10, sum by (le) (rate(rag_top_rrf_score_bucket[2m])))", "legendFormat": "p10 RRF score", "exemplar": true },
-        { "expr": "vector(0.012)", "legendFormat": "min_relevance_score (0.012)", "exemplar": true }
+        {
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(rag_top_rrf_score_bucket[2m])))",
+          "legendFormat": "p90 RRF score",
+          "exemplar": true
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(rag_top_rrf_score_bucket[2m])))",
+          "legendFormat": "p50 RRF score",
+          "exemplar": true
+        },
+        {
+          "expr": "histogram_quantile(0.10, sum by (le) (rate(rag_top_rrf_score_bucket[2m])))",
+          "legendFormat": "p10 RRF score",
+          "exemplar": true
+        },
+        {
+          "expr": "vector(0.012)",
+          "legendFormat": "min_relevance_score (0.012)",
+          "exemplar": true
+        }
       ],
-      "fieldConfig": { "defaults": { "decimals": 4, "min": 0, "max": 0.036 } }
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 4,
+          "min": 0,
+          "max": 0.036
+        }
+      }
     },
     {
       "type": "heatmap",
       "title": "Live Top-1 RRF Score Histogram Heatmap (vs. rag_rrf_score_distribution.png)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 7, "w": 24, "x": 0, "y": 15 },
-      "options": { "calculate": false },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 15
+      },
+      "options": {
+        "calculate": false
+      },
       "targets": [
         {
           "expr": "sum by (le) (increase(rag_top_rrf_score_bucket[1m]))",
-          "format": "heatmap", "legendFormat": "{{le}}", "exemplar": true
+          "format": "heatmap",
+          "legendFormat": "{{le}}",
+          "exemplar": true
         }
       ]
     },
     {
       "type": "row",
       "title": "3. Parallel errgroup Retrieval Latency & Trace-Correlated Logs",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 22 }
+      "gridPos": {
+        "h": 1,
+        "w": 24,
+        "x": 0,
+        "y": 22
+      }
     },
     {
       "type": "timeseries",
       "title": "Stage p95 Latency: BM25 vs. Vector vs. RRF Retrieve (ms)",
-      "datasource": { "type": "prometheus", "uid": "prometheus" },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 23 },
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 0,
+        "y": 23
+      },
       "targets": [
         {
           "expr": "histogram_quantile(0.95, sum by (le, stage) (rate(rag_stage_duration_seconds_bucket[1m]))) * 1000",
-          "legendFormat": "{{stage}} p95", "exemplar": true
+          "legendFormat": "{{stage}} p95",
+          "exemplar": true
         },
         {
           "expr": "histogram_quantile(0.50, sum by (le, stage) (rate(rag_stage_duration_seconds_bucket[1m]))) * 1000",
-          "legendFormat": "{{stage}} p50", "exemplar": true
+          "legendFormat": "{{stage}} p50",
+          "exemplar": true
         }
       ],
-      "fieldConfig": { "defaults": { "unit": "ms", "decimals": 3 } }
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 3
+        }
+      }
     },
     {
       "type": "logs",
       "title": "06-production-rag Structured Access Logs (Loki)",
-      "datasource": { "type": "loki", "uid": "loki" },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 23 },
-      "targets": [ { "expr": "{service_name=\"06-production-rag\"}", "exemplar": true } ]
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 23
+      },
+      "targets": [
+        {
+          "expr": "{service_name=\"06-production-rag\"}",
+          "exemplar": true
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,188 @@
+{
+  "uid": "apprentice-04-multimodal",
+  "title": "04 \u2014 Multimodal AI: Live FFmpeg Demux vs. Concurrent ONNX",
+  "tags": [
+    "apprentice-module",
+    "multimodal",
+    "vision",
+    "audio",
+    "otel"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "links": [
+    {
+      "title": "00 \u2014 Apprentice Home",
+      "type": "link",
+      "url": "/d/apprentice-lgtm-stack",
+      "keepTime": true
+    },
+    {
+      "title": "Module Dashboards (01\u201307)",
+      "type": "dashboards",
+      "tags": [
+        "apprentice-module"
+      ],
+      "asDropdown": true,
+      "keepTime": true
+    }
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Multimodal Decisions",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(multimodal_decisions_total[$__range]))",
+          "legendFormat": "decisions"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Static Video Frames Deduped",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(multimodal_frames_dedup_saved_total[$__range])) or vector(0)",
+          "legendFormat": "frames skipped"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Stage p95: FFmpeg Demux vs. ONNX (ms)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, stage) (rate(multimodal_stage_duration_seconds_bucket{stage=~\"ffmpeg_demux|concurrent_onnx\"}[2m]))) * 1000",
+          "legendFormat": "{{stage}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Live Stage Latency Waterfall: FFmpeg Demux vs. Vision/Audio ONNX (ms) [vs. multimodal_benchmark_summary.png]",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, stage) (rate(multimodal_stage_duration_seconds_bucket[1m]))) * 1000",
+          "legendFormat": "{{stage}} p95",
+          "exemplar": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Verdicts by Modality (eKYC, Unboxing & VAD)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "targets": [
+        {
+          "expr": "sum by (modality, verdict) (increase(multimodal_decisions_total[$__range]))",
+          "legendFormat": "{{modality}}: {{verdict}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "logs",
+      "title": "04-multimodal-ai Trace-Correlated Logs (Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "expr": "{service_name=\"04-multimodal-ai\"}"
+        }
+      ]
+    }
+  ]
+}

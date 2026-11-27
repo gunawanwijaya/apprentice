@@ -1,0 +1,220 @@
+{
+  "uid": "apprentice-01-sla",
+  "title": "01 \u2014 Delivery SLA Breach: Live Probability & CQR Intervals",
+  "tags": [
+    "apprentice-module",
+    "sla",
+    "cqr",
+    "otel"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "links": [
+    {
+      "title": "00 \u2014 Apprentice Home",
+      "type": "link",
+      "url": "/d/apprentice-lgtm-stack",
+      "keepTime": true
+    },
+    {
+      "title": "Module Dashboards (01\u201307)",
+      "type": "dashboards",
+      "tags": [
+        "apprentice-module"
+      ],
+      "asDropdown": true,
+      "keepTime": true
+    }
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Scored Orders",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(sla_predictions_total[$__range]))",
+          "legendFormat": "orders"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Predicted SLA Breach Rate (%)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "100 * (sum(increase(sla_predictions_total{is_late=\"true\"}[$__range])) or vector(0)) / clamp_min(sum(increase(sla_predictions_total[$__range])), 1)",
+          "legendFormat": "late %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Median CQR Interval Width (Days)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(sla_cqr_interval_width_days_bucket[2m])))",
+          "legendFormat": "p50 width"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": " days",
+          "decimals": 1
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "ONNX 4-Model p95 Latency (ms)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{service_name=\"01-delivery-sla-breach\"}[1m]))) * 1000",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Live Breach Probability Quantiles vs. Threshold (0.12) [vs. pr_curve_threshold.png]",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(sla_breach_probability_bucket[2m])))",
+          "legendFormat": "p90 prob",
+          "exemplar": true
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(sla_breach_probability_bucket[2m])))",
+          "legendFormat": "p50 prob"
+        },
+        {
+          "expr": "vector(0.12)",
+          "legendFormat": "decision_threshold (0.12)"
+        }
+      ]
+    },
+    {
+      "type": "timeseries",
+      "title": "Adaptive CQR Interval Width p10 / p50 / p90 (Days) [vs. cqr_interval_eval.png]",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(sla_cqr_interval_width_days_bucket[2m])))",
+          "legendFormat": "p90 width (long-haul)"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(sla_cqr_interval_width_days_bucket[2m])))",
+          "legendFormat": "p50 width"
+        },
+        {
+          "expr": "histogram_quantile(0.10, sum by (le) (rate(sla_cqr_interval_width_days_bucket[2m])))",
+          "legendFormat": "p10 width (local)"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": " days"
+        }
+      }
+    },
+    {
+      "type": "logs",
+      "title": "01-delivery-sla-breach Trace-Correlated Logs (Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "expr": "{service_name=\"01-delivery-sla-breach\"}"
+        }
+      ]
+    }
+  ]
+}

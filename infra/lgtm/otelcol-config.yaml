@@ -74,6 +74,15 @@ exporters:
 
 service:
   extensions: [health_check]
+  telemetry:
+    metrics:
+      readers:
+        - periodic:
+            interval: 5000
+            exporter:
+              otlp:
+                protocol: http/protobuf
+                endpoint: http://127.0.0.1:4318
   pipelines:
     traces:
       receivers: [otlp]

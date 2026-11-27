@@ -1,0 +1,215 @@
+{
+  "uid": "apprentice-07-agents",
+  "title": "07 \u2014 Agents, MCP & Evals: Live ReAct Guardrails & Tool Calls",
+  "tags": [
+    "apprentice-module",
+    "agents",
+    "mcp",
+    "otel"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "links": [
+    {
+      "title": "00 \u2014 Apprentice Home",
+      "type": "link",
+      "url": "/d/apprentice-lgtm-stack",
+      "keepTime": true
+    },
+    {
+      "title": "Module Dashboards (01\u201307)",
+      "type": "dashboards",
+      "tags": [
+        "apprentice-module"
+      ],
+      "asDropdown": true,
+      "keepTime": true
+    }
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Agent Runs",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(agent_runs_total[$__range]))",
+          "legendFormat": "runs"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Mutating / Injection Blocks",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(agent_runs_total{mutating_blocked=\"true\"}[$__range])) or vector(0)",
+          "legendFormat": "blocked"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "HITL Escalation Drafts (>250k IDR)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(agent_runs_total{hitl_escalated=\"true\"}[$__range])) or vector(0)",
+          "legendFormat": "HITL drafts"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Cross-Tenant Confused-Deputy Blocks",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(mcp_tool_calls_total{outcome=\"forbidden_cross_tenant\"}[$__range])) or vector(0)",
+          "legendFormat": "blocked"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Agent Runs by Disposition [vs. agent_guardrail_ablation.png]",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "targets": [
+        {
+          "expr": "sum by (disposition) (increase(agent_runs_total[$__range]))",
+          "legendFormat": "{{disposition}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "MCP Server Tool Calls by Tool & Outcome",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "targets": [
+        {
+          "expr": "sum by (tool, outcome) (increase(mcp_tool_calls_total[$__range]))",
+          "legendFormat": "{{tool}} ({{outcome}})",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "logs",
+      "title": "07-agents-mcp-evals Trace-Correlated Logs (Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "expr": "{service_name=\"07-agents-mcp-evals\"}"
+        }
+      ]
+    }
+  ]
+}

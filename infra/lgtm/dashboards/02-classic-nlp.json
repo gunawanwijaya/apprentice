@@ -1,0 +1,186 @@
+{
+  "uid": "apprentice-02-nlp",
+  "title": "02 \u2014 Classic NLP: Live Intent, Triage, NER & PII Redaction",
+  "tags": [
+    "apprentice-module",
+    "nlp",
+    "bm25",
+    "otel"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "links": [
+    {
+      "title": "00 \u2014 Apprentice Home",
+      "type": "link",
+      "url": "/d/apprentice-lgtm-stack",
+      "keepTime": true
+    },
+    {
+      "title": "Module Dashboards (01\u201307)",
+      "type": "dashboards",
+      "tags": [
+        "apprentice-module"
+      ],
+      "asDropdown": true,
+      "keepTime": true
+    }
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total NLP Pipeline Ops",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(nlp_requests_total[$__range]))",
+          "legendFormat": "ops"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "PII Redaction Mask Rate (%)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "100 * (sum(increase(nlp_pii_redactions_total{masked=\"true\"}[$__range])) or vector(0)) / clamp_min(sum(increase(nlp_pii_redactions_total[$__range])), 1)",
+          "legendFormat": "masked %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "HTTP p95 Latency (ms)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(http_server_request_duration_seconds_bucket{service_name=\"02-classic-nlp\"}[1m]))) * 1000",
+          "legendFormat": "p95"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Live Ticket Volume by Intent / Queue / Priority [vs. nlp_benchmark_summary.png]",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "targets": [
+        {
+          "expr": "topk(10, sum by (pipeline, label) (increase(nlp_requests_total[$__range])))",
+          "legendFormat": "{{pipeline}}: {{label}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "BM25 Top-1 Lexical Score Quantiles",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.90, sum by (le) (rate(nlp_bm25_top_score_bucket[2m])))",
+          "legendFormat": "p90 BM25"
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(nlp_bm25_top_score_bucket[2m])))",
+          "legendFormat": "p50 BM25"
+        }
+      ]
+    },
+    {
+      "type": "logs",
+      "title": "02-classic-nlp Trace-Correlated Logs (Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "expr": "{service_name=\"02-classic-nlp\"}"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,191 @@
+{
+  "uid": "apprentice-03-transformer",
+  "title": "03 \u2014 Transformer ONNX: Live FP32 vs. INT8 Quantization",
+  "tags": [
+    "apprentice-module",
+    "transformer",
+    "onnx",
+    "otel"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "links": [
+    {
+      "title": "00 \u2014 Apprentice Home",
+      "type": "link",
+      "url": "/d/apprentice-lgtm-stack",
+      "keepTime": true
+    },
+    {
+      "title": "Module Dashboards (01\u201307)",
+      "type": "dashboards",
+      "tags": [
+        "apprentice-module"
+      ],
+      "asDropdown": true,
+      "keepTime": true
+    }
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Predictions by Precision (INT8 vs FP32)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum by (precision) (increase(transformer_predictions_total[$__range]))",
+          "legendFormat": "{{precision}}"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "INT8 vs FP32 p50 ONNX Latency (ms)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le, precision) (rate(transformer_inference_duration_seconds_bucket[2m]))) * 1000",
+          "legendFormat": "{{precision}} p50"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "decimals": 2
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Median Confidence Score",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.50, sum by (le, precision) (rate(transformer_confidence_bucket[2m])))",
+          "legendFormat": "{{precision}} conf"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 3
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Live ONNX Encoder Latency: INT8 vs. FP32 p95 & p50 (ms) [vs. transformer_benchmark_summary.png]",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "histogram_quantile(0.95, sum by (le, precision) (rate(transformer_inference_duration_seconds_bucket[1m]))) * 1000",
+          "legendFormat": "{{precision}} p95",
+          "exemplar": true
+        },
+        {
+          "expr": "histogram_quantile(0.50, sum by (le, precision) (rate(transformer_inference_duration_seconds_bucket[1m]))) * 1000",
+          "legendFormat": "{{precision}} p50"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms"
+        }
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Predicted Classes by Precision",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "targets": [
+        {
+          "expr": "topk(8, sum by (precision, label) (increase(transformer_predictions_total[$__range])))",
+          "legendFormat": "{{precision}}: {{label}}",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "logs",
+      "title": "03-transformer-onnx Trace-Correlated Logs (Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "expr": "{service_name=\"03-transformer-onnx\"}"
+        }
+      ]
+    }
+  ]
+}

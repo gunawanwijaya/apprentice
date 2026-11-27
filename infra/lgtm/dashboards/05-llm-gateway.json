@@ -1,0 +1,207 @@
+{
+  "uid": "apprentice-05-gateway",
+  "title": "05 \u2014 LLM Gateway: Live Cache ROI, Entity Guard & Token FinOps",
+  "tags": [
+    "apprentice-module",
+    "llm",
+    "finops",
+    "otel"
+  ],
+  "timezone": "browser",
+  "schemaVersion": 39,
+  "refresh": "5s",
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
+  "links": [
+    {
+      "title": "00 \u2014 Apprentice Home",
+      "type": "link",
+      "url": "/d/apprentice-lgtm-stack",
+      "keepTime": true
+    },
+    {
+      "title": "Module Dashboards (01\u201307)",
+      "type": "dashboards",
+      "tags": [
+        "apprentice-module"
+      ],
+      "asDropdown": true,
+      "keepTime": true
+    }
+  ],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Gateway Cache Hit Rate (%)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "100 * (sum(increase(llm_requests_total{cache_status=~\"exact.*|semantic.*\"}[$__range])) or vector(0)) / clamp_min(sum(increase(llm_requests_total[$__range])), 1)",
+          "legendFormat": "hit %"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "percent",
+          "decimals": 1
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Entity-Sensitive Cache Guardrail Triggers",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 6,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(llm_requests_total{entity_sensitive=\"true\"}[$__range])) or vector(0)",
+          "legendFormat": "guarded"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Cumulative Upstream Spend (USD)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 12,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(llm_cost_usd_total[$__range])) or vector(0)",
+          "legendFormat": "USD"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "currencyUSD",
+          "decimals": 5
+        }
+      }
+    },
+    {
+      "type": "stat",
+      "title": "Provider Failovers (429/5xx -> Gemini)",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 18,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(llm_requests_total{failed_over=\"true\"}[$__range])) or vector(0)",
+          "legendFormat": "failovers"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "bargauge",
+      "title": "Requests by Cache Status (Exact Hit vs. Semantic Hit vs. Miss) [vs. gateway_economics_summary.png]",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
+      "options": {
+        "orientation": "horizontal",
+        "displayMode": "gradient"
+      },
+      "targets": [
+        {
+          "expr": "sum by (cache_status, entity_sensitive) (increase(llm_requests_total[$__range]))",
+          "legendFormat": "{{cache_status}} (entity={{entity_sensitive}})",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "decimals": 0
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Token Throughput: Prompt (Prefill) vs. Completion (Decode) / sec",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
+      "targets": [
+        {
+          "expr": "sum by (type, model) (rate(llm_tokens_total[1m]))",
+          "legendFormat": "{{model}} ({{type}})"
+        }
+      ]
+    },
+    {
+      "type": "logs",
+      "title": "05-llm-gateway Trace-Correlated Logs (Loki)",
+      "datasource": {
+        "type": "loki",
+        "uid": "loki"
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 13
+      },
+      "targets": [
+        {
+          "expr": "{service_name=\"05-llm-gateway\"}"
+        }
+      ]
+    }
+  ]
+}
