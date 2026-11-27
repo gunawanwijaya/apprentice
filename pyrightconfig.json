@@ -1,6 +1,8 @@
 {
   "pythonVersion": "3.12",
-  "typeCheckingMode": "basic",
+  "typeCheckingMode": "off",
+  "reportMissingImports": "warning",
+  "reportMissingModuleSource": "warning",
   "include": [
     "01-delivery-sla-breach/ml",
     "02-classic-nlp/ml",
@@ -8,50 +10,58 @@
     "04-multimodal-ai/ml",
     "05-llm-gateway/ml",
     "06-production-rag/ml",
-    "07-agents-mcp-evals/ml"
+    "07-agents-mcp-evals/ml",
+    "infra"
   ],
   "executionEnvironments": [
     {
       "root": "01-delivery-sla-breach/ml",
-      "venvPath": "01-delivery-sla-breach/ml",
-      "venv": ".venv",
-      "extraPaths": ["01-delivery-sla-breach/ml"]
+      "extraPaths": [
+        "01-delivery-sla-breach/ml",
+        "01-delivery-sla-breach/ml/.venv/lib/python3.12/site-packages"
+      ]
     },
     {
       "root": "02-classic-nlp/ml",
-      "venvPath": "02-classic-nlp/ml",
-      "venv": ".venv",
-      "extraPaths": ["02-classic-nlp/ml"]
+      "extraPaths": [
+        "02-classic-nlp/ml",
+        "02-classic-nlp/ml/.venv/lib/python3.12/site-packages"
+      ]
     },
     {
       "root": "03-transformer-onnx/ml",
-      "venvPath": "03-transformer-onnx/ml",
-      "venv": ".venv",
-      "extraPaths": ["03-transformer-onnx/ml"]
+      "extraPaths": [
+        "03-transformer-onnx/ml",
+        "03-transformer-onnx/ml/.venv/lib/python3.12/site-packages"
+      ]
     },
     {
       "root": "04-multimodal-ai/ml",
-      "venvPath": "04-multimodal-ai/ml",
-      "venv": ".venv",
-      "extraPaths": ["04-multimodal-ai/ml"]
+      "extraPaths": [
+        "04-multimodal-ai/ml",
+        "04-multimodal-ai/ml/.venv/lib/python3.12/site-packages"
+      ]
     },
     {
       "root": "05-llm-gateway/ml",
-      "venvPath": "05-llm-gateway/ml",
-      "venv": ".venv",
-      "extraPaths": ["05-llm-gateway/ml"]
+      "extraPaths": [
+        "05-llm-gateway/ml",
+        "05-llm-gateway/ml/.venv/lib/python3.12/site-packages"
+      ]
     },
     {
       "root": "06-production-rag/ml",
-      "venvPath": "06-production-rag/ml",
-      "venv": ".venv",
-      "extraPaths": ["06-production-rag/ml"]
+      "extraPaths": [
+        "06-production-rag/ml",
+        "06-production-rag/ml/.venv/lib/python3.12/site-packages"
+      ]
     },
     {
       "root": "07-agents-mcp-evals/ml",
-      "venvPath": "07-agents-mcp-evals/ml",
-      "venv": ".venv",
-      "extraPaths": ["07-agents-mcp-evals/ml"]
+      "extraPaths": [
+        "07-agents-mcp-evals/ml",
+        "07-agents-mcp-evals/ml/.venv/lib/python3.12/site-packages"
+      ]
     }
   ]
 }

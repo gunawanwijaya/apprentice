@@ -1,5 +1,8 @@
 # Apprentice — Production ML & AI Systems in Python + Go
 
+[![CI](https://github.com/gunawanwijaya/apprentice/actions/workflows/ci.yml/badge.svg)](https://github.com/gunawanwijaya/apprentice/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
 A hands-on monorepo of **7 production AI/ML systems** plus a **shared observability & storage stack**. Every module pairs an **offline Python training & evaluation plane (`ml/`)** with an **isolated Go online serving & control plane (`go/`, embedded ONNX Runtime via CGO in `01`–`04` and pure-Go `net/http` in `05`–`07`)**, bound together by a SHA-256 versioned **`feature_contract.json`**, deterministic **`golden_fixtures.json`** parity gates, and shared OpenTelemetry instrumentation (`infra/telemetry`).
 
 ---
@@ -87,7 +90,7 @@ Every `0X-<module>/` directory follows the exact same structure:
 Run any module or the full 7-service observability fleet from the repository root:
 
 ```bash
-# 1. Startshared backing services, launch all 7 Go servers (:8081–:8087) & stream live traffic to Grafana (:3000)
+# 1. Start shared backing services, launch all 7 Go servers (:8081–:8087) & stream live traffic to Grafana (:3000)
 make infra-up
 make serve-all
 make demo-traffic
