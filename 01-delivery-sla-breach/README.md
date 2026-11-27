@@ -115,7 +115,7 @@ For visual EDA, PR-AUC curves, Top-3 F1 threshold sweeps, and the operational co
 
 | Variable | Default | Description |
 | :--- | :--- | :--- |
-| `PORT` | `8080` | HTTP listen port |
+| `PORT` | `8081` | HTTP listen port |
 | `MODEL_PATH` | `../artifacts/model.onnx` | Path to exported ONNX model |
 | `ONNXRUNTIME_LIB` | *(auto-resolved by Makefile)* | Path to `libonnxruntime.so` / `.dylib` |
 
@@ -125,7 +125,7 @@ For visual EDA, PR-AUC curves, Top-3 F1 threshold sweeps, and the operational co
 Returns service health and the active compiled contract version and hash.
 
 ```bash
-curl -s http://localhost:8080/healthz
+curl -s http://localhost:8081/healthz
 ```
 
 ```json
@@ -140,7 +140,7 @@ curl -s http://localhost:8080/healthz
 Scores a single checkout order and returns the SLA breach probability and decision. Nullable fields (`weight_grams`, `seller_late_rate`) accept `null`.
 
 ```bash
-curl -s -X POST http://localhost:8080/predict \
+curl -s -X POST http://localhost:8081/predict \
   -H "Content-Type: application/json" \
   -d '{
     "distance_km": 920.5,
@@ -203,7 +203,7 @@ make test MOD=01-delivery-sla-breach
 # 4. Re-execute the EDA & benchmark notebook (regenerates pr_curve_threshold.png)
 cd 01-delivery-sla-breach/ml && uv run jupyter nbconvert --to notebook --execute --inplace notebooks/01_eda_benchmark.ipynb && cd ../..
 
-# 5. Start the Go HTTP inference server on :8080
+# 5. Start the Go HTTP inference server on :8081
 make serve MOD=01-delivery-sla-breach
 ```
 

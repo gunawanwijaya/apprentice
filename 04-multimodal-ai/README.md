@@ -96,7 +96,7 @@ make test MOD=04-multimodal-ai
 # 4. Regenerate visual benchmark charts from exported artifacts
 cd 04-multimodal-ai/ml && uv run jupyter nbconvert --to notebook --execute --inplace notebooks/04_multimodal_benchmark.ipynb && cd ../..
 
-# 5. Launch the concurrent Go server on :8080
+# 5. Launch the concurrent Go server on :8084
 make serve MOD=04-multimodal-ai
 ```
 
@@ -117,7 +117,7 @@ ffmpeg -y -f lavfi -i testsrc=duration=3:size=128x128:rate=10 \
   -f lavfi -i sine=frequency=220:duration=3 \
   -c:v libx264 -pix_fmt yuv420p -c:a aac /tmp/sample_clip.mp4 -loglevel error
 
-curl -s -X POST http://localhost:8080/ekyc/video -F "file=@/tmp/sample_clip.mp4" | jq
-curl -s -X POST http://localhost:8080/unboxing/video -F "file=@/tmp/sample_clip.mp4" | jq
+curl -s -X POST http://localhost:8084/ekyc/video -F "file=@/tmp/sample_clip.mp4" | jq
+curl -s -X POST http://localhost:8084/unboxing/video -F "file=@/tmp/sample_clip.mp4" | jq
 rm -f /tmp/sample_clip.mp4
 ```

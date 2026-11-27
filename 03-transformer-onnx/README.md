@@ -108,7 +108,7 @@ make serve MOD=03-transformer-onnx
 
 **Example Request & Response:**
 ```bash
-curl -s -X POST http://localhost:8080/predict \
+curl -s -X POST http://localhost:8083/predict \
   -H "Content-Type: application/json" \
   -d '{"text": "I did not ask for a billing refund, I just want to know why my shipment is delayed", "precision": "int8"}' | jq
 ```

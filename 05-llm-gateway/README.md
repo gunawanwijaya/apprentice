@@ -94,20 +94,20 @@ make serve MOD=05-llm-gateway
 
 ```bash
 # 1. Stream SSE tokens in real time
-curl -N -X POST http://localhost:8080/v1/chat/completions \
+curl -N -X POST http://localhost:8085/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{"tenant_id":"live","stream":true,"messages":[{"role":"user","content":"Give 3 short bullet points on why Go is ideal for an LLM gateway."}]}'
 
 # 2. Trigger Primary 429 -> Native Gemini Failover
-curl -s -X POST http://localhost:8080/v1/chat/completions \
+curl -s -X POST http://localhost:8085/v1/chat/completions \
   -H "Content-Type: application/json" \
   -d '{"tenant_id":"live","fault_inject":"force_live_failover","messages":[{"role":"user","content":"Confirm which model answered after failover in one sentence."}]}' | jq
 
 # 3. Structured refund extraction with domain invariant check
-curl -s -X POST http://localhost:8080/v1/extract/refund \
+curl -s -X POST http://localhost:8085/v1/extract/refund \
   -H "Content-Type: application/json" \
   -d '{"tenant_id":"live","ticket_text":"Customer received cracked item on Order #10042, paid Rp 150000, unboxing video verified.","max_refundable_idr":200000}' | jq
 
 # 4. Inspect per-tenant token & USD spend ledger
-curl -s "http://localhost:8080/v1/ledger?tenant_id=live" | jq
+curl -s "http://localhost:8085/v1/ledger?tenant_id=live" | jq
 ```

@@ -160,7 +160,7 @@ make gen MOD=02-classic-nlp
 # 3. Execute non-cached 5-way Python <-> Go parity test suite
 make test MOD=02-classic-nlp
 
-# 4. Start the Go HTTP inference server on :8080
+# 4. Start the Go HTTP inference server on :8082
 make serve MOD=02-classic-nlp
 ```
 
@@ -168,27 +168,27 @@ make serve MOD=02-classic-nlp
 
 ```bash
 # Ingress PII redaction (91 us)
-curl -s -X POST http://localhost:8080/redact \
+curl -s -X POST http://localhost:8082/redact \
   -H "Content-Type: application/json" \
   -d '{"text":"Hubungi 081234567890, NIK 3171012345678901, email budi@example.com"}' | jq
 
 # PII-redacted intent classification (401 us)
-curl -s -X POST http://localhost:8080/intent \
+curl -s -X POST http://localhost:8082/intent \
   -H "Content-Type: application/json" \
   -d '{"text":"I want a refund for my order, call me at 081234567890"}' | jq
 
 # Pure-Go BM25 FAQ retrieval (92 us)
-curl -s -X POST http://localhost:8080/search \
+curl -s -X POST http://localhost:8082/search \
   -H "Content-Type: application/json" \
   -d '{"query":"cancel order refund"}' | jq
 
 # Pure-Go CRF Viterbi NER (123 us)
-curl -s -X POST http://localhost:8080/ner \
+curl -s -X POST http://localhost:8082/ner \
   -H "Content-Type: application/json" \
   -d '{"text":"Agung works at Tokopedia in Jakarta"}' | jq
 
 # Multilingual ticket triage (290 us)
-curl -s -X POST http://localhost:8080/triage \
+curl -s -X POST http://localhost:8082/triage \
   -H "Content-Type: application/json" \
   -d '{"text":"Ich brauche Hilfe für mein Konto, dringend!"}' | jq
 ```
