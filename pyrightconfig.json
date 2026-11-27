@@ -7,7 +7,8 @@
     "03-transformer-onnx/ml",
     "04-multimodal-ai/ml",
     "05-llm-gateway/ml",
-    "06-production-rag/ml"
+    "06-production-rag/ml",
+    "07-agents-mcp-evals/ml"
   ],
   "executionEnvironments": [
     {
@@ -45,6 +46,12 @@
       "venvPath": "06-production-rag/ml",
       "venv": ".venv",
       "extraPaths": ["06-production-rag/ml"]
+    },
+    {
+      "root": "07-agents-mcp-evals/ml",
+      "venvPath": "07-agents-mcp-evals/ml",
+      "venv": ".venv",
+      "extraPaths": ["07-agents-mcp-evals/ml"]
     }
   ]
 }

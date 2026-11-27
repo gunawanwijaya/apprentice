@@ -1,5 +1,5 @@
-MOD ?= 06-production-rag
-MODULES := 01-delivery-sla-breach 02-classic-nlp 03-transformer-onnx 04-multimodal-ai 05-llm-gateway 06-production-rag
+MOD ?= 07-agents-mcp-evals
+MODULES := 01-delivery-sla-breach 02-classic-nlp 03-transformer-onnx 04-multimodal-ai 05-llm-gateway 06-production-rag 07-agents-mcp-evals
 
 ORT_DIR := $(CURDIR)/.ort
 ORT_SO  := $(ORT_DIR)/onnxruntime.so
@@ -48,13 +48,13 @@ generate-all:
 
 test: ort-setup
 	@ORT_REAL_DIR=$$(dirname "$$(readlink -f "$(ORT_SO)")"); \
-	cd $(MOD)/go && LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go test -v ./...
+	cd $(MOD)/go && LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go test -count=1 -v ./...
 
 test-all: ort-setup
 	@ORT_REAL_DIR=$$(dirname "$$(readlink -f "$(ORT_SO)")"); \
 	for m in $(MODULES); do \
 		echo "=== Testing $$m ==="; \
-		(cd $$m/go && LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go test ./...) || exit 1; \
+		(cd $$m/go && LD_LIBRARY_PATH="$(ORT_DIR):$$ORT_REAL_DIR$${LD_LIBRARY_PATH:+:$$LD_LIBRARY_PATH}" go test -count=1 ./...) || exit 1; \
 	done
 
 serve: ort-setup
