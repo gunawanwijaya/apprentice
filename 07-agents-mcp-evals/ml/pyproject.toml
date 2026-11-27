@@ -1,0 +1,15 @@
+[project]
+name = "07-agents-mcp-evals-ml"
+version = "0.1.0"
+description = "Offline MCP agent guardrail ablation, LLM-as-a-Judge calibration, and golden fixture exporter"
+requires-python = ">=3.12"
+dependencies = [
+    "ipykernel>=6.29.5",
+    "jupyter>=1.1.1",
+    "matplotlib>=3.9.2",
+    "nbconvert>=7.16.4",
+    "pandas>=2.2.3",
+]
+
+[tool.uv]
+package = false

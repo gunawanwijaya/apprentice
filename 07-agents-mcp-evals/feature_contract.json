@@ -1,0 +1,23 @@
+{
+  "schema_version": "v1.0.0",
+  "agent_loop": {
+    "max_steps": 4,
+    "wall_clock_timeout_ms": 8000,
+    "max_run_budget_usd": 0.02,
+    "max_consecutive_tool_errors": 2,
+    "block_duplicate_tool_calls": true,
+    "parallel_read_tools": true
+  },
+  "mcp_security": {
+    "protocol_version": "2025-03-26",
+    "bind_principal_from_session": true,
+    "lock_mutating_tools_on_readonly_intent": true,
+    "max_auto_refund_idr": 250000,
+    "require_citation_on_policy_answer": true
+  },
+  "eval_gate": {
+    "require_reasoning_before_verdict": true,
+    "min_judge_cohen_kappa": 0.85,
+    "require_zero_injection_escapes": true
+  }
+}
